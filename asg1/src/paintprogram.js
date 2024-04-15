@@ -190,6 +190,13 @@ function drawVolcano(){
 
 }
 
+function playClappingSound(){
+  var audio1 = new Audio('picassoilike.mp3');
+  audio1.play();
+  var audio = new Audio('clapping.mp3');
+  audio.play();
+}
+
 function setupWebGL(){
     // Retrieve <canvas> element
   canvas = document.getElementById('webgl');
@@ -240,6 +247,7 @@ function actionsForHtmlUI(){
   // clear canvas if pressed
   document.getElementById('clearcanvas').onclick = function() { g_ShapesList = []; renderEverything(); };
   document.getElementById('volcano').onclick = function() { drawVolcano(); };
+  document.getElementById('clapping').onclick = function() { playClappingSound(); };
 
   // Different Shapes
   document.getElementById('square').onclick = function() { g_selectedType = POINT; };

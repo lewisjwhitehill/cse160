@@ -34,6 +34,162 @@ let g_Size = 5;
 let g_selectedType = POINT;
 let g_numSegments = 6;
 
+function drawVolcano(){
+
+  // volcano base
+  let t1 = new Triangle();
+  t1.size = 50;
+  t1.color = [0.25, 0.1, 0.1, 1.0];
+  t1.position = [-0.5, -0.5, 0.0];
+  t1.render();
+
+  let t2 = new Triangle();
+  t2.size = 50;
+  t2.color = [0.25, 0.1, 0.1, 1.0];
+  t2.position = [-0.4, -0.5, 0.0];
+  t2.render();
+
+  let t3 = new Triangle();
+  t3.size = 50;
+  t3.color = [0.25, 0.1, 0.1, 1.0];
+  t3.position = [-0.3, -0.5, 0.0];
+  t3.render();
+
+  let t4 = new Triangle();
+  t4.size = 50;
+  t4.color = [0.25, 0.1, 0.1, 1.0];
+  t4.position = [-0.2, -0.5, 0.0];
+  t4.render();
+
+  let t5 = new Triangle();
+  t5.size = 50;
+  t5.color = [0.25, 0.1, 0.1, 1.0];
+  t5.position = [-0.1, -0.5, 0.0];
+  t5.render();
+
+  let t55 = new Triangle();
+  t55.size = 50;
+  t55.color = [0.25, 0.1, 0.1, 1.0];
+  t55.position = [-0.0, -0.5, 0.0];
+  t55.render();
+
+  // 2nd layer
+
+  let t6 = new Triangle();
+  t6.size = 50;
+  t6.color = [0.25, 0.1, 0.1, 1.0];
+  t6.position = [-0.4, -0.4, 0.0];
+  t6.render();
+
+  let t7 = new Triangle();
+  t7.size = 50;
+  t7.color = [0.25, 0.1, 0.1, 1.0];
+  t7.position = [-0.3, -0.4, 0.0];
+  t7.render();
+
+  let t8 = new Triangle();
+  t8.size = 50;
+  t8.color = [0.25, 0.1, 0.1, 1.0];
+  t8.position = [-0.2, -0.4, 0.0];
+  t8.render();
+
+  let t9 = new Triangle();
+  t9.size = 50;
+  t9.color = [0.25, 0.1, 0.1, 1.0];
+  t9.position = [-0.1, -0.4, 0.0];
+  t9.render();
+
+  // 3rd layer
+
+  let t10 = new Triangle();
+  t10.size = 50;
+  t10.color = [0.25, 0.1, 0.1, 1.0];
+  t10.position = [-0.3, -0.3, 0.0];
+  t10.render();
+
+  let t11 = new Triangle();
+  t11.size = 50;
+  t11.color = [0.25, 0.1, 0.1, 1.0];
+  t11.position = [-0.25, -0.3, 0.0];
+  t11.render();
+
+  let t12 = new Triangle();
+  t12.size = 50;
+  t12.color = [0.25, 0.1, 0.1, 1.0];
+  t12.position = [-0.2, -0.3, 0.0];
+  t12.render();
+
+  // lava errupting
+  let l1 = new Triangle();
+  l1.size = 20;
+  l1.color = [0.8, 0.0, 0.0, 1.0];
+  l1.position = [-0.25, -0.1, 0.0];
+  l1.render();
+
+  let l2 = new Triangle();
+  l2.size = 20;
+  l2.color = [0.8, 0.8, 0.0, 1.0];
+  l2.position = [-0.25, 0.0, 0.0];
+  l2.render();
+
+  let l3 = new Triangle();
+  l3.size = 20;
+  l3.color = [0.8, 0.0, 0.0, 1.0];
+  l3.position = [-0.25, 0.1, 0.0];
+  l3.render();
+
+  // 2
+  let l4 = new Triangle();
+  l4.size = 20;
+  l4.color = [0.8, 0.8, 0.0, 1.0];
+  l4.position = [-0.35, -0.1, 0.0];
+  l4.render();
+
+  let l5 = new Triangle();
+  l5.size = 20;
+  l5.color = [0.8, 0.0, 0.0, 1.0];
+  l5.position = [-0.4, 0.0, 0.0];
+  l5.render();
+
+  let l6 = new Triangle();
+  l6.size = 20;
+  l6.color = [0.8, 0.8, 0.0, 1.0];
+  l6.position = [-0.45, 0.1, 0.0];
+  l6.render();
+
+  let l66 = new Triangle();
+  l66.size = 20;
+  l66.color = [0.8, 0.0, 0.0, 1.0];
+  l66.position = [-0.5, 0.2, 0.0];
+  l66.render();
+
+  // 3
+  let l7 = new Triangle();
+  l7.size = 20;
+  l7.color = [0.8, 0.8, 0.0, 1.0];
+  l7.position = [-0.15, -0.1, 0.0];
+  l7.render();
+
+  let l8 = new Triangle();
+  l8.size = 20;
+  l8.color = [0.8, 0.0, 0.0, 1.0];
+  l8.position = [-0.1, 0.0, 0.0];
+  l8.render();
+
+  let l9 = new Triangle();
+  l9.size = 20;
+  l9.color = [0.8, 0.8, 0.0, 1.0];
+  l9.position = [-0.05, 0.1, 0.0];
+  l9.render();
+
+  let l99 = new Triangle();
+  l99.size = 20;
+  l99.color = [0.8, 0.0, 0.0, 1.0];
+  l99.position = [0.0, 0.2, 0.0];
+  l99.render();
+
+}
+
 function setupWebGL(){
     // Retrieve <canvas> element
   canvas = document.getElementById('webgl');
@@ -83,6 +239,7 @@ function actionsForHtmlUI(){
 
   // clear canvas if pressed
   document.getElementById('clearcanvas').onclick = function() { g_ShapesList = []; renderEverything(); };
+  document.getElementById('volcano').onclick = function() { drawVolcano(); };
 
   // Different Shapes
   document.getElementById('square').onclick = function() { g_selectedType = POINT; };
@@ -184,5 +341,8 @@ function click(ev) {
 
   // clear the canvas, redraw all the previous things and now the current one
   renderEverything();
+
+  
+
   
 }

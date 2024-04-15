@@ -17,8 +17,8 @@ class Triangle{
             gl.uniform1f(u_ShapeSize, size);
             
             // Draw
-            var d = this.size / 200.0; // delta for the length of the sides
-            drawTriangle([ xy[0], xy[1], xy[0]+d, xy[1], xy[0], xy[1]+d] );
+            var d = this.size / 400.0; // delta for the length of the sides
+            drawTriangle([ xy[0]+d, xy[1], xy[0]-d, xy[1], xy[0], xy[1]+d] );
     } // render
 } // class Point
 

@@ -169,7 +169,7 @@
         // creating an object
         const mtlLoader = new MTLLoader();
 
-        mtlLoader.load('12221_Cat_v1_l3.mtl', (mtl) => {
+        mtlLoader.load('https://threejs.org/manual/examples/resources/images/wall.jpg', (mtl) => {
             mtl.preload();
             const objLoader = new OBJLoader();
             objLoader.setMaterials(mtl);

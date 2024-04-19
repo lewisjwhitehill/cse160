@@ -162,20 +162,22 @@
 
         // creating an object
         const mtlLoader = new MTLLoader();
-        mtlLoader.load('12221_Cat_v1_l3.mtl'), (mtl) => {
-        mtl.preload();
-        objLoader.setMaterials(mtl);
 
-
-        {
+        mtlLoader.load('12221_Cat_v1_l3.mtl', (mtl) => {
+            mtl.preload();
             const objLoader = new OBJLoader();
-            objLoader.load('cat.obj', (root) => {
-                root.rotation.x = Math.PI/2;
-                scene.add(root);
-            });
-        }
+            objLoader.setMaterials(mtl);
 
-        }
+
+            
+                
+                objLoader.load('cat.obj', (root) => {
+                    root.rotation.x = Math.PI/2;
+                    scene.add(root);
+                });
+            
+
+        });
 
 
         // creating a texture

@@ -150,20 +150,6 @@
             openEnded
         );
 
-        // creating an object
-        const mtlLoader = new MTLLoader();
-        mtlLoader.load('12221_Cat_v1_l3'), (mtl) => {
-        mtl.preload();
-        objLoader.setMaterials(mtl);
-
-        {
-            const objLoader = new OBJLoader();
-            objLoader.load('cat.obj', (root) => {
-                scene.add(root);
-            });
-        }
-
-        // creating a texture
 
 
         const texture = loader.load( 'https://threejs.org/manual/examples/resources/images/wall.jpg' );
@@ -172,6 +158,27 @@
         const coolmaterial = new THREE.MeshBasicMaterial( {
             map: texture
         } );
+
+
+        // creating an object
+        const mtlLoader = new MTLLoader();
+        mtlLoader.load('12221_Cat_v1_l3.mtl'), (mtl) => {
+        mtl.preload();
+        objLoader.setMaterials(mtl);
+
+
+        {
+            const objLoader = new OBJLoader();
+            objLoader.load('cat.obj', (root) => {
+                root.rotation.x = Math.PI/2;
+                scene.add(root);
+            });
+        }
+
+
+        // creating a texture
+
+
 
 
         const material1 = new THREE.MeshPhongMaterial({color: 0x8844aa});

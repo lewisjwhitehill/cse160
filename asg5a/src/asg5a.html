@@ -116,6 +116,12 @@
         light.position.set(-1, 20, 4);
         scene.add(light);
 
+        // Add ambient light
+        const color2 = 0xFFFFFF;
+        const intensity2 = 1;
+        const light2 = new THREE.AmbientLight(color2, intensity2);
+        scene.add(light2);
+
         const gui = new GUI();
         gui.addColor(new ColorGUIHelper(light, 'color'), 'value').name('color');
         gui.add(light, 'intensity', 0, 2, 0.01);

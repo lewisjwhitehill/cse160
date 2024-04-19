@@ -169,20 +169,16 @@
         // creating an object
         const mtlLoader = new MTLLoader();
 
-        mtlLoader.load('https://threejs.org/manual/examples/resources/images/wall.jpg', (mtl) => {
+        mtlLoader.load('https://threejs.org/manual/examples/resources/models/windmill/windmill.mtl', (mtl) => {
             mtl.preload();
             const objLoader = new OBJLoader();
             objLoader.setMaterials(mtl);
 
-
-            
-                
                 objLoader.load('cat.obj', (root) => {
                     root.rotation.x = -Math.PI/2;
                     scene.add(root);
                 });
             
-
         });
 
 

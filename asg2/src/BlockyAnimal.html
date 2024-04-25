@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Blocky Animal</title>
+  </head>
+
+  <body onload="main()">
+    Lewis Whitehill<br><br>
+    lwhitehi@ucsc.edu <br><br>
+    Notes to Grader: 
+    <br><br>
+    <canvas id="webgl" width="400" height="400">
+    </canvas>
+
+    <br><br>
+    <button type="button" id="clearcanvas">Clear Canvas</button>
+    <br><br>
+    <button type="button" id="rAnimationOn">Wave Animation On</button>
+    <button type="button" id="rAnimationOff">Wave Animation Off</button>
+    <p>
+      <button type="button" id="jumpAnimationOn">Jump Animation On</button>
+      <button type="button" id="jumpAnimationOff">Jump Animation Off</button>
+      <p>
+    Camera Angle <input type="range" min="-90" max="90" value="0" class="slider" id="angleSlide">
+    Body Angle <input type="range" min="-45" max="45" value="0" class="slider" id="bodySlide">
+  
+    Head Angle <input type="range" min="-45" max="45" value="0" class="slider" id="headSlide">
+    <p>
+    Right Arm Angle <input type="range" min="-45" max="45" value="0" class="slider" id="RarmSlide">
+    Left Arm Angle <input type="range" min="-45" max="45" value="0" class="slider" id="LarmSlide">
+    <p>
+    Right Forearm Angle <input type="range" min="-45" max="45" value="0" class="slider" id="rForearmSlide">
+    Left Forearm Angle <input type="range" min="-45" max="45" value="0" class="slider" id="lForearmSlide">
+    <p>
+    Right Hand Angle <input type="range" min="-45" max="45" value="0" class="slider" id="rHandSlide">
+    Left Hand Angle <input type="range" min="-45" max="45" value="0" class="slider" id="lHandSlide">
+    <p>
+    Upper Right Leg Angle <input type="range" min="-45" max="45" value="0" class="slider" id="urLegSlide">
+    Upper Left Leg Angle <input type="range" min="-45" max="45" value="0" class="slider" id="ulLegSlide">
+    <p>
+    Lower Right Leg Angle <input type="range" min="-45" max="45" value="0" class="slider" id="lrLegSlide">
+    Lower Left Leg Angle <input type="range" min="-45" max="45" value="0" class="slider" id="llLegSlide"> 
+    <p>
+    Left Foot Angle <input type="range" min="-45" max="45" value="0" class="slider" id="lFootSlide">
+    Right Foot Angle <input type="range" min="-45" max="45" value="0" class="slider" id="rFootSlide"> 
+    <script src="../lib/webgl-utils.js"></script>
+    <script src="../lib/webgl-debug.js"></script>
+    <script src="../lib/cuon-utils.js"></script>
+    <script src="../lib/cuon-matrix-cse160.js"></script>
+    <script src="Point.js"></script>
+    <script src="Triangle.js"></script>
+    <script src="Circle.js"></script>
+    <script src="Cube.js"></script>
+    <script src="BlockyAnimal.js"></script>
+    
+  </body>
+</html>

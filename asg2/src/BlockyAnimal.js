@@ -111,15 +111,14 @@ g_jump = false;
 
 function actionsForHtmlUI(){
 
+  // special events
+  canvas.onclick = function(ev){ if(ev.shiftKey == true){ g_rightArmAnimation = true;}};
+
   // Button Events
-  document.getElementById('rAnimationOn').onclick = function() { g_rightArmAnimation = true;};
   document.getElementById('rAnimationOff').onclick = function() { g_rightArmAnimation = false;};
 
   document.getElementById('jumpAnimationOn').onclick = function() { g_jump = true;};
   document.getElementById('jumpAnimationOff').onclick = function() { g_jump = false;};
-
-  // clear canvas if pressed
-  document.getElementById('clearcanvas').onclick = function() { g_ShapesList = []; renderEverything(); };
 
   document.getElementById('angleSlide').addEventListener('mousemove', function () { g_globalAngle = this.value; renderEverything();});
   document.getElementById('bodySlide').addEventListener('mousemove', function () { g_bodyAngle = this.value; renderEverything();});
@@ -172,10 +171,8 @@ var g_seconds = performance.now()/ 1000.0 - g_startTime;
 function tick(){
   // performance
 
-  console.log(performance.now());
   // draw everything
   g_seconds = performance.now()/ 1000.0- g_startTime;
-  console.log(g_seconds);
 
   // update the angle based on whether or not were using animation
   updateAnimationAngles();

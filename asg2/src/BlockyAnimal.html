@@ -9,13 +9,13 @@
     Lewis Whitehill<br><br>
     lwhitehi@ucsc.edu <br><br>
     Notes to Grader: <br><br>
-    Shift-Click for a special animation
+    Shift-Click for a special animation.<p>
+    Looks better if you use one animation at a time.
     <br><br>
     <canvas id="webgl" width="400" height="400">
     </canvas>
+    <div id="fpsDisplay" style="position: absolute; top: 600px; left: 350px; color: black;"></div>
 
-    <p>
-    <button type="button" id="rAnimationOff">Shift-Click Animation Off</button>
     <p>
       <button type="button" id="jumpAnimationOn">Jump Animation On</button>
       <button type="button" id="jumpAnimationOff">Jump Animation Off</button>
@@ -40,8 +40,9 @@
     Lower Right Leg Angle <input type="range" min="-45" max="45" value="0" class="slider" id="lrLegSlide">
     Lower Left Leg Angle <input type="range" min="-45" max="45" value="0" class="slider" id="llLegSlide"> 
     <p>
-    Left Foot Angle <input type="range" min="-45" max="45" value="0" class="slider" id="lFootSlide">
+    
     Right Foot Angle <input type="range" min="-45" max="45" value="0" class="slider" id="rFootSlide"> 
+    Left Foot Angle <input type="range" min="-45" max="45" value="0" class="slider" id="lFootSlide">
     <script src="../lib/webgl-utils.js"></script>
     <script src="../lib/webgl-debug.js"></script>
     <script src="../lib/cuon-utils.js"></script>

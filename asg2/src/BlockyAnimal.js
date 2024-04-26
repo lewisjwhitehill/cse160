@@ -1,3 +1,6 @@
+//import stats from 'https://cdnjs.cloudflare.com/ajax/libs/stats.js/17/Stats.js'
+//import "/styles.css";
+
 // A lot of this code is from ColoredPoints.js (c) 2012 matsuda
 // Vertex shader program
 var VSHADER_SOURCE =
@@ -25,7 +28,6 @@ let u_FragColor;
 let u_Size;
 let u_ModelMatrix;
 let u_GlobalRotateMatrix;
-
 
 function setupWebGL(){
     // Retrieve <canvas> element
@@ -112,10 +114,9 @@ g_jump = false;
 function actionsForHtmlUI(){
 
   // special events
-  canvas.onclick = function(ev){ if(ev.shiftKey == true){ g_rightArmAnimation = true;}};
+  canvas.onclick = function(ev){ if(ev.shiftKey == true){ g_rightArmAnimation = true; shiftClickStartTime = performance.now() / 1000.0;}};
 
   // Button Events
-  document.getElementById('rAnimationOff').onclick = function() { g_rightArmAnimation = false;};
 
   document.getElementById('jumpAnimationOn').onclick = function() { g_jump = true;};
   document.getElementById('jumpAnimationOff').onclick = function() { g_jump = false;};
@@ -168,9 +169,35 @@ function main() {
 var g_startTime = performance.now()/ 1000.0;
 var g_seconds = performance.now()/ 1000.0 - g_startTime;
 
+var duration = performance.now() - g_startTime * 1000.0;
+
+// Initialize variables
+let fps = 0;
+let lastFrameTime = 0;
+
+function displayFPS(){
+
+  // Display FPS value on HTML element or WebGL canvas
+  document.getElementById('fpsDisplay').innerText = `FPS: ${Math.round(fps)}`;
+}
+
 function tick(){
   // performance
+  //stats.begin();
+  // Calculate time elapsed since last frame
+  const currentTime = performance.now();
+  const elapsedTime = currentTime - lastFrameTime;
 
+  // Calculate FPS
+  fps = 1000 / elapsedTime;
+
+  // Update last frame time
+  lastFrameTime = currentTime;
+
+  // Render WebGL scene
+
+  // Display FPS
+  displayFPS();
   // draw everything
   g_seconds = performance.now()/ 1000.0- g_startTime;
 
@@ -180,26 +207,40 @@ function tick(){
   renderEverything();
   // request that tick is called again
   requestAnimationFrame(tick);
-
+  //stats.end();
 } // tick
 
+var shiftClickStartTime = 0;
+var shiftClickDuration = 6; // Duration of the animation in seconds
+
 function updateAnimationAngles(){
+
+  const currentTime = performance.now() / 1000.0; // Convert to seconds
+
+  // if we get a shift-click
   if(g_rightArmAnimation){
 
-    const minAngle = -60; 
-    const maxAngle = 0; 
-    let rawAngle = 60 * Math.sin(g_seconds);
-    g_rForeArmAngle = Math.min(Math.max(rawAngle, minAngle), maxAngle);
+    // animate for 6 seconds
+    if (currentTime - shiftClickStartTime <= shiftClickDuration) {
 
-    const min1 = -20;
-    const max1 = 0;
-    const raw1 = 45 * Math.sin(g_seconds);
-    g_RightArmAngle = Math.min(Math.max(raw1, min1), max1);
+      const minAngle = -60; 
+      const maxAngle = 0; 
+      let rawAngle = 60 * Math.sin(g_seconds);
+      g_rForeArmAngle = Math.min(Math.max(rawAngle, minAngle), maxAngle);
 
-    const min2 = -20;
-    const max2 = 0;
-    const raw2 = 500 * Math.sin(g_seconds);
-    g_rHandAngle = Math.min(Math.max(raw2, min2), max2);
+      const min1 = -20;
+      const max1 = 0;
+      const raw1 = 45 * Math.sin(g_seconds);
+      g_RightArmAngle = Math.min(Math.max(raw1, min1), max1);
+
+      const min2 = -20;
+      const max2 = 0;
+      const raw2 = 500 * Math.sin(g_seconds);
+      g_rHandAngle = Math.min(Math.max(raw2, min2), max2);
+    } else {
+      // Disable the animation after duration
+      g_rightArmAnimation = false; 
+    }
 
   }
   if(g_jump){
@@ -262,6 +303,8 @@ function renderEverything(){
   body.matrix.scale(0.25, .7, .25);
   body.matrix.translate(-.5, 0, 0);
   body.render();
+
+  
 
   // Draw the head
   var head = new Cube();

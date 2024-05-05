@@ -168,6 +168,8 @@ g_lrLegAngle = 0;
 g_lFoot = 0;
 g_rFoot = 0;
 
+g_b1RotateAngle = 0;
+
 g_rightArmAnimation = false;
 g_jump = false;
 
@@ -205,6 +207,7 @@ function actionsForHtmlUI(){
 
 function main() {
   
+  console.log("bruh");
   // set up the necessary webGL stuff
   setupWebGL();
 
@@ -225,6 +228,7 @@ function main() {
 
   // start the animation
   requestAnimationFrame(tick);
+ 
 
 } // main
 
@@ -245,14 +249,10 @@ function displayFPS(){
 
 function tick(){
   // performance
-  //stats.begin();
-  // Calculate time elapsed since last frame
   const currentTime = performance.now();
   const elapsedTime = currentTime - lastFrameTime;
-
   // Calculate FPS
   fps = 1000 / elapsedTime;
-
   // Update last frame time
   lastFrameTime = currentTime;
 
@@ -269,7 +269,7 @@ function tick(){
   renderEverything();
   // request that tick is called again
   requestAnimationFrame(tick);
-  //stats.end();
+ 
 } // tick
 
 var shiftClickStartTime = 0;
@@ -278,6 +278,8 @@ var shiftClickDuration = 6; // Duration of the animation in seconds
 function updateAnimationAngles(){
 
   const currentTime = performance.now() / 1000.0; // Convert to seconds
+
+  g_b1RotateAngle = currentTime * 90;
 
   // if we get a shift-click
   if(g_rightArmAnimation){
@@ -328,6 +330,8 @@ function updateAnimationAngles(){
     g_LeftArmAngle = 45 * Math.sin(g_seconds);
 
   }
+
+  
 }
 
 function convertCoordsToGL(ev){
@@ -342,6 +346,251 @@ function convertCoordsToGL(ev){
 
 } // convertCoordsToGL
 
+
+function drawSurroundings(){
+  // Draw the floor
+  var floor = new Cube();
+  floor.color = [0.20, 0.55, 0.20, 1];
+  floor.matrix.translate(0, -1, 0);
+  floor.matrix.scale(50, 0, 50);
+  floor.matrix.translate(-0.5, 5, -0.5);
+  floor.textureNum = -2;
+  floor.render();
+
+  // Draw the sky
+  var sky = new Cube();
+  sky.textureNum = -1;
+  sky.color = [0, 0, 1, 1];
+  sky.matrix.translate(0, -1, 0);
+  sky.matrix.scale(50, 50, 50);
+  sky.matrix.translate(-0.5, 0, -0.5);
+  sky.textureNum = 0;
+  sky.render();
+}
+
+function drawMonkey(){
+   // Draw the body cube
+   var body = new Cube();
+   body.color = [0.620, 0.170, 0.170, 1.0];
+   body.textureNum = -2;
+   body.matrix.translate(0, -.25, 0);
+   body.matrix.rotate(-5, 1, 0, 0);
+   body.matrix.rotate(-g_bodyAngle, 0, 0, 1);
+   var bodyMat = new Matrix4(body.matrix);
+   var bodyMat2 = new Matrix4(body.matrix);
+   var bodyMat3 = new Matrix4(body.matrix);
+   var bodyMat4 = new Matrix4(body.matrix);
+   var bodyMat5 = new Matrix4(body.matrix);
+   body.matrix.scale(0.25, .7, .25);
+   body.matrix.translate(-.5, 0, 0);
+   body.render();
+ 
+   
+ 
+   // Draw the head
+   var head = new Cube();
+   head.color = [0.640, 0.170, 0.170, 1.0];
+   head.textureNum = -2;
+   head.matrix = bodyMat;
+   head.matrix.translate(0, 0.65, 0);
+   head.matrix.rotate(-g_headAngle, 0, 0, 1);
+   head.matrix.scale(0.3, 0.3, 0.3);
+   head.matrix.translate(-.5, 0, -0.0001);
+   var headMat1 = new Matrix4(head.matrix);
+   var headMat2 = new Matrix4(head.matrix);
+   var headMat3 = new Matrix4(head.matrix);
+   head.render();
+ 
+   // face
+   var face = new Cube();
+   face.color = [0.960, 0.871, 0.702, 1.0];
+   face.matrix = headMat3;
+   face.matrix.scale(0.8, 0.5, 0.1);
+   face.matrix.translate(0.13, 0.5, -1);
+   var faceMat = new Matrix4(face.matrix);
+   face.render();
+ 
+   // mouth area
+   var moutharea = new Cube();
+   moutharea.color = [0.960, 0.871, 0.702, 1.0];
+   moutharea.matrix = faceMat;
+   moutharea.matrix.scale(0.7, 1, 1);
+   moutharea.matrix.translate(0.19,-0.3, 0);
+   var mouthAMAT = new Matrix4(moutharea.matrix)
+   moutharea.render();
+ 
+   // left eye
+   var lEye = new Cube();
+   lEye.color = [0, 0, 0, 1.0];
+   lEye.matrix = mouthAMAT;
+   lEye.matrix.scale(0.25, 0.4, 1);
+   lEye.matrix.translate(0.5, 1, -0.1);
+   var lEyeMat = new Matrix4(lEye.matrix); 
+   lEye.render();
+ 
+   // right eye
+   var rEye = new Cube();
+   rEye.color = [0, 0, 0, 1.0];
+   rEye.matrix = lEyeMat;
+   rEye.matrix.translate(2, 0, 0);
+   rEye.render();
+ 
+   // Draw left ear
+   var leftEar = new Cube();
+   leftEar.color = [0.960, 0.871, 0.702, 1.0];
+   leftEar.matrix = headMat1
+   leftEar.matrix.translate(1, 0, 0);
+   leftEar.matrix.scale(0.25, 0.25, 0.1);
+   leftEar.matrix.translate(0, 1.5, 2);
+   leftEar.render();
+ 
+   // Draw right ear
+   var leftEar = new Cube();
+   leftEar.color = [0.960, 0.871, 0.702, 1.0];
+   leftEar.matrix = headMat2
+   leftEar.matrix.translate(-0.25, 0, 0);
+   leftEar.matrix.scale(0.25, 0.25, 0.1);
+   leftEar.matrix.translate(0, 1.5, 2);
+   leftEar.render();
+ 
+   // Draw the right arm
+   var rightArm = new Cube();
+   rightArm.color = [0.620, 0.170, 0.170, 1.0];
+   rightArm.matrix = bodyMat2;
+   rightArm.matrix.translate(-0.3, 0.3, 0);
+   rightArm.matrix.scale(0.15, 0.3, 0.15)
+   rightArm.matrix.rotate(180, 0, 0, 1);
+   rightArm.matrix.translate(-1.2, -1, -0.0001);
+   rightArm.matrix.rotate(-10, 0, 0, 1);
+   rightArm.matrix.rotate(g_RightArmAngle, 0, 0, 1);
+   var rightArmMat = new Matrix4(rightArm.matrix);
+   rightArm.render();
+ 
+   var rForeArm = new Cube();
+   rForeArm.color = [0.620, 0.170, 0.170, 1.0];
+   rForeArm.matrix = rightArmMat;
+   rForeArm.matrix.translate(0.15, 1, 0);
+   rForeArm.matrix.scale(0.8, 0.6, 0.8);
+   rForeArm.matrix.rotate(g_rForeArmAngle, 0, 0, 1);
+   var rForeArmMat = new Matrix4(rForeArm.matrix);
+   rForeArm.render();
+ 
+   var rHand = new Cube();
+   rHand.color = [0.960, 0.871, 0.702, 1.0];
+   rHand.matrix = rForeArmMat;
+   rHand.matrix.scale(1, 0.5, 1);
+   rHand.matrix.translate(0, 2, -0.001);
+   rHand.matrix.rotate(g_rHandAngle, 0, 0, 1);
+   rHand.render();
+  
+   // // Draw the left arm
+   var leftArm = new Cube();
+   leftArm.color = [0.620, 0.170, 0.170, 1.0];
+   leftArm.matrix = bodyMat3;
+   leftArm.matrix.scale(0.15, 0.3, 0.15);
+   leftArm.matrix.scale(-1, 1, 1);
+   leftArm.matrix.rotate(180, 0, 0, 1);
+   leftArm.matrix.translate(0.8, -2, -0.0001);
+   leftArm.matrix.rotate(-10, 0, 0, 1);
+   leftArm.matrix.rotate(g_LeftArmAngle, 0, 0, 1);
+   var leftArmMat = new Matrix4(leftArm.matrix);
+   leftArm.render();
+ 
+   var lForeArm = new Cube();
+   lForeArm.color = [0.620, 0.170, 0.170, 1.0];
+   lForeArm.matrix = leftArmMat;
+   lForeArm.matrix.translate(0.15, 1, 0);
+   lForeArm.matrix.scale(0.8, 0.6, 0.8);
+   lForeArm.matrix.rotate(g_lForeArmAngle, 0, 0, 1);
+   var lForeArmMat = new Matrix4(lForeArm.matrix);
+   lForeArm.render();
+ 
+   var lHand = new Cube();
+   lHand.color = [0.960, 0.871, 0.702, 1.0];
+   lHand.matrix = lForeArmMat;
+   lHand.matrix.scale(1, 0.5, 1);
+   lHand.matrix.translate(0, 2, -0.001);
+   lHand.matrix.rotate(g_lHandAngle, 0, 0, 1);
+   lHand.render();
+ 
+   // Draw the right upper leg
+   var rightLeg = new Cube();
+   rightLeg.color = [0.640, 0.170, 0.170, 1.0];
+   rightLeg.matrix = bodyMat4;
+   rightLeg.matrix.translate(-0.3, 0.3, 0);
+   rightLeg.matrix.scale(0.15, 0.3, 0.15)
+   rightLeg.matrix.rotate(180, 0, 0, 1);
+   rightLeg.matrix.translate(-1.5, 1, -0.0001);
+   rightLeg.matrix.rotate(-10, 0, 0, 1);
+   rightLeg.matrix.rotate(g_urLegAngle, 0, 0, 1);
+   var rightLegMat = new Matrix4(rightLeg.matrix);
+  
+   rightLeg.render();
+   
+   //Draw the right lower leg
+   var rightLowerLeg = new Cube();
+   rightLowerLeg.color = [0.647, 0.165, 0.165, 1.0];
+   rightLowerLeg.matrix = rightLegMat;
+   rightLowerLeg.matrix.translate(0, 0.7, -0.0002);
+   rightLowerLeg.matrix.scale(0.8, 1, 0.8);
+   rightLowerLeg.matrix.rotate(10, 0, 0, 1);
+   rightLowerLeg.matrix.rotate(g_lrLegAngle, 0, 0, 1);
+   var rll = new Matrix4(rightLowerLeg.matrix);
+   rightLowerLeg.render();
+ 
+   // Draw the right foot 
+   var rightFoot = new Cube();
+   rightFoot.color = [0.960, 0.871, 0.702, 1.0];
+   rightFoot.matrix = rll;
+   rightFoot.matrix.translate(0, 1, -0.0003);
+   rightFoot.matrix.scale(1, 0.25, 1);
+   rightFoot.matrix.rotate(g_rFoot, 0, 0, 1);
+   rightFoot.render();
+ 
+   // Draw the left upper leg
+   var leftLeg = new Cube();
+   leftLeg.color = [0.640, 0.170, 0.170, 1.0];
+   leftLeg.matrix = bodyMat5;
+   leftLeg.matrix.scale(0.15, 0.3, 0.15);
+   leftLeg.matrix.scale(-1, 1, 1);
+   leftLeg.matrix.rotate(180, 0, 0, 1);
+   leftLeg.matrix.translate(0.5, 0, -0.0001);
+   leftLeg.matrix.rotate(-10, 0, 0, 1);
+   leftLeg.matrix.rotate(g_ulLegAngle, 0, 0, 1);
+   var leftLegMat = new Matrix4(leftLeg.matrix);
+   
+   leftLeg.render();
+ 
+   //Draw the left lower leg
+   var leftLowerLeg = new Cube();
+   leftLowerLeg.color = [0.647, 0.165, 0.165, 1.0];
+   leftLowerLeg.matrix = leftLegMat;
+   leftLowerLeg.matrix.translate(0, 0.7, -0.0002);
+   leftLowerLeg.matrix.scale(0.8, 1, 0.8);
+   leftLowerLeg.matrix.rotate(10, 0, 0, 1);
+   leftLowerLeg.matrix.rotate(g_llLegAngle, 0, 0, 1);
+   var lll = new Matrix4(leftLowerLeg.matrix);
+   leftLowerLeg.render();
+ 
+   // Draw the left foot 
+   var leftFoot = new Cube();
+   leftFoot.color = [0.960, 0.871, 0.702, 1.0];
+   leftFoot.matrix = lll;
+   leftFoot.matrix.translate(0, 1, -0.0003);
+   leftFoot.matrix.scale(1, 0.25, 1);
+   leftFoot.matrix.rotate(g_lFoot, 0, 0, 1);
+   leftFoot.render();
+ 
+}
+
+function drawBoxes(){
+  var box1 = new Cube();
+  box1.textureNum = -1;
+  box1.matrix.translate(-0.5, 2, 0);
+  box1.matrix.rotate(g_b1RotateAngle, g_b1RotateAngle, g_b1RotateAngle, 1);
+  box1.render();
+}
+
 function renderEverything(){
 
   // pass the projection matrix
@@ -351,10 +600,10 @@ function renderEverything(){
 
   // pass the view matrix
   var viewMat = new Matrix4();
-  viewMat.setLookAt(0,0,-1, 0,0,0, 0,1,0); // eye, at, up
+  viewMat.setLookAt(0,0,-2.5, 0,0,0, 0,1,0); // eye, at, up
   gl.uniformMatrix4fv(u_ViewMatrix, false, viewMat.elements);
 
-
+  // pass the global rotation matrix
   var globalRotMat = new Matrix4().rotate(g_globalAngle, 0, 1, 0);
   gl.uniformMatrix4fv(u_GlobalRotateMatrix, false, globalRotMat.elements);
 
@@ -362,235 +611,14 @@ function renderEverything(){
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
   gl.clear(gl.COLOR_BUFFER_BIT);
 
-  // Draw the floor
-  var floor = new Cube();
-  floor.color = [0.13, 0.55, 0.13, 1];
-  floor.matrix.translate(0, -1, 0);
-  floor.matrix.scale(50, 0, 50);
-  floor.matrix.translate(-0.5, 5, -0.5);
-  floor.textureNum = -2;
-  floor.render();
+  // draw the sky and ground
+  drawSurroundings();
 
-  // Draw the sky
-  var sky = new Cube();
-  sky.color = [0, 0, 1, 1];
-  sky.matrix.translate(0, -1, 0);
-  sky.matrix.scale(50, 50, 50);
-  sky.matrix.translate(-0.5, 0, -0.5);
-  sky.textureNum = 0;
-  sky.render();
+  // draw the monkey
+  drawMonkey();
 
-  // Draw the body cube
-  var body = new Cube();
-  body.color = [0.620, 0.170, 0.170, 1.0];
-  body.textureNum = 0;
-  body.matrix.translate(0, -.25, 0);
-  body.matrix.rotate(-5, 1, 0, 0);
-  body.matrix.rotate(-g_bodyAngle, 0, 0, 1);
-  var bodyMat = new Matrix4(body.matrix);
-  var bodyMat2 = new Matrix4(body.matrix);
-  var bodyMat3 = new Matrix4(body.matrix);
-  var bodyMat4 = new Matrix4(body.matrix);
-  var bodyMat5 = new Matrix4(body.matrix);
-  body.matrix.scale(0.25, .7, .25);
-  body.matrix.translate(-.5, 0, 0);
-  body.render();
-
-  
-
-  // Draw the head
-  var head = new Cube();
-  head.color = [0.640, 0.170, 0.170, 1.0];
-  head.matrix = bodyMat;
-  head.matrix.translate(0, 0.65, 0);
-  head.matrix.rotate(-g_headAngle, 0, 0, 1);
-  head.matrix.scale(0.3, 0.3, 0.3);
-  head.matrix.translate(-.5, 0, -0.0001);
-  var headMat1 = new Matrix4(head.matrix);
-  var headMat2 = new Matrix4(head.matrix);
-  var headMat3 = new Matrix4(head.matrix);
-  head.render();
-
-  // face
-  var face = new Cube();
-  face.color = [0.960, 0.871, 0.702, 1.0];
-  face.matrix = headMat3;
-  face.matrix.scale(0.8, 0.5, 0.1);
-  face.matrix.translate(0.13, 0.5, -1);
-  var faceMat = new Matrix4(face.matrix);
-  face.render();
-
-  // mouth area
-  var moutharea = new Cube();
-  moutharea.color = [0.960, 0.871, 0.702, 1.0];
-  moutharea.matrix = faceMat;
-  moutharea.matrix.scale(0.7, 1, 1);
-  moutharea.matrix.translate(0.19,-0.3, 0);
-  var mouthAMAT = new Matrix4(moutharea.matrix)
-  moutharea.render();
-
-  // left eye
-  var lEye = new Cube();
-  lEye.color = [0, 0, 0, 1.0];
-  lEye.matrix = mouthAMAT;
-  lEye.matrix.scale(0.25, 0.4, 1);
-  lEye.matrix.translate(0.5, 1, -0.1);
-  var lEyeMat = new Matrix4(lEye.matrix); 
-  lEye.render();
-
-  // right eye
-  var rEye = new Cube();
-  rEye.color = [0, 0, 0, 1.0];
-  rEye.matrix = lEyeMat;
-  rEye.matrix.translate(2, 0, 0);
-  rEye.render();
-
-  // Draw left ear
-  var leftEar = new Cube();
-  leftEar.color = [0.960, 0.871, 0.702, 1.0];
-  leftEar.matrix = headMat1
-  leftEar.matrix.translate(1, 0, 0);
-  leftEar.matrix.scale(0.25, 0.25, 0.1);
-  leftEar.matrix.translate(0, 1.5, 2);
-  leftEar.render();
-
-  // Draw right ear
-  var leftEar = new Cube();
-  leftEar.color = [0.960, 0.871, 0.702, 1.0];
-  leftEar.matrix = headMat2
-  leftEar.matrix.translate(-0.25, 0, 0);
-  leftEar.matrix.scale(0.25, 0.25, 0.1);
-  leftEar.matrix.translate(0, 1.5, 2);
-  leftEar.render();
-
-  // Draw the right arm
-  var rightArm = new Cube();
-  rightArm.color = [0.620, 0.170, 0.170, 1.0];
-  rightArm.matrix = bodyMat2;
-  rightArm.matrix.translate(-0.3, 0.3, 0);
-  rightArm.matrix.scale(0.15, 0.3, 0.15)
-  rightArm.matrix.rotate(180, 0, 0, 1);
-  rightArm.matrix.translate(-1.2, -1, -0.0001);
-  rightArm.matrix.rotate(-10, 0, 0, 1);
-  rightArm.matrix.rotate(g_RightArmAngle, 0, 0, 1);
-  var rightArmMat = new Matrix4(rightArm.matrix);
-  rightArm.render();
-
-  var rForeArm = new Cube();
-  rForeArm.color = [0.620, 0.170, 0.170, 1.0];
-  rForeArm.matrix = rightArmMat;
-  rForeArm.matrix.translate(0.15, 1, 0);
-  rForeArm.matrix.scale(0.8, 0.6, 0.8);
-  rForeArm.matrix.rotate(g_rForeArmAngle, 0, 0, 1);
-  var rForeArmMat = new Matrix4(rForeArm.matrix);
-  rForeArm.render();
-
-  var rHand = new Cube();
-  rHand.color = [0.960, 0.871, 0.702, 1.0];
-  rHand.matrix = rForeArmMat;
-  rHand.matrix.scale(1, 0.5, 1);
-  rHand.matrix.translate(0, 2, -0.001);
-  rHand.matrix.rotate(g_rHandAngle, 0, 0, 1);
-  rHand.render();
+  drawBoxes();
  
-  // // Draw the left arm
-  var leftArm = new Cube();
-  leftArm.color = [0.620, 0.170, 0.170, 1.0];
-  leftArm.matrix = bodyMat3;
-  leftArm.matrix.scale(0.15, 0.3, 0.15);
-  leftArm.matrix.scale(-1, 1, 1);
-  leftArm.matrix.rotate(180, 0, 0, 1);
-  leftArm.matrix.translate(0.8, -2, -0.0001);
-  leftArm.matrix.rotate(-10, 0, 0, 1);
-  leftArm.matrix.rotate(g_LeftArmAngle, 0, 0, 1);
-  var leftArmMat = new Matrix4(leftArm.matrix);
-  leftArm.render();
-
-  var lForeArm = new Cube();
-  lForeArm.color = [0.620, 0.170, 0.170, 1.0];
-  lForeArm.matrix = leftArmMat;
-  lForeArm.matrix.translate(0.15, 1, 0);
-  lForeArm.matrix.scale(0.8, 0.6, 0.8);
-  lForeArm.matrix.rotate(g_lForeArmAngle, 0, 0, 1);
-  var lForeArmMat = new Matrix4(lForeArm.matrix);
-  lForeArm.render();
-
-  var lHand = new Cube();
-  lHand.color = [0.960, 0.871, 0.702, 1.0];
-  lHand.matrix = lForeArmMat;
-  lHand.matrix.scale(1, 0.5, 1);
-  lHand.matrix.translate(0, 2, -0.001);
-  lHand.matrix.rotate(g_lHandAngle, 0, 0, 1);
-  lHand.render();
-
-  // Draw the right upper leg
-  var rightLeg = new Cube();
-  rightLeg.color = [0.640, 0.170, 0.170, 1.0];
-  rightLeg.matrix = bodyMat4;
-  rightLeg.matrix.translate(-0.3, 0.3, 0);
-  rightLeg.matrix.scale(0.15, 0.3, 0.15)
-  rightLeg.matrix.rotate(180, 0, 0, 1);
-  rightLeg.matrix.translate(-1.5, 1, -0.0001);
-  rightLeg.matrix.rotate(-10, 0, 0, 1);
-  rightLeg.matrix.rotate(g_urLegAngle, 0, 0, 1);
-  var rightLegMat = new Matrix4(rightLeg.matrix);
- 
-  rightLeg.render();
-  
-  //Draw the right lower leg
-  var rightLowerLeg = new Cube();
-  rightLowerLeg.color = [0.647, 0.165, 0.165, 1.0];
-  rightLowerLeg.matrix = rightLegMat;
-  rightLowerLeg.matrix.translate(0, 0.7, -0.0002);
-  rightLowerLeg.matrix.scale(0.8, 1, 0.8);
-  rightLowerLeg.matrix.rotate(10, 0, 0, 1);
-  rightLowerLeg.matrix.rotate(g_lrLegAngle, 0, 0, 1);
-  var rll = new Matrix4(rightLowerLeg.matrix);
-  rightLowerLeg.render();
-
-  // Draw the right foot 
-  var rightFoot = new Cube();
-  rightFoot.color = [0.960, 0.871, 0.702, 1.0];
-  rightFoot.matrix = rll;
-  rightFoot.matrix.translate(0, 1, -0.0003);
-  rightFoot.matrix.scale(1, 0.25, 1);
-  rightFoot.matrix.rotate(g_rFoot, 0, 0, 1);
-  rightFoot.render();
-
-  // Draw the left upper leg
-  var leftLeg = new Cube();
-  leftLeg.color = [0.640, 0.170, 0.170, 1.0];
-  leftLeg.matrix = bodyMat5;
-  leftLeg.matrix.scale(0.15, 0.3, 0.15);
-  leftLeg.matrix.scale(-1, 1, 1);
-  leftLeg.matrix.rotate(180, 0, 0, 1);
-  leftLeg.matrix.translate(0.5, 0, -0.0001);
-  leftLeg.matrix.rotate(-10, 0, 0, 1);
-  leftLeg.matrix.rotate(g_ulLegAngle, 0, 0, 1);
-  var leftLegMat = new Matrix4(leftLeg.matrix);
-  
-  leftLeg.render();
-
-  //Draw the left lower leg
-  var leftLowerLeg = new Cube();
-  leftLowerLeg.color = [0.647, 0.165, 0.165, 1.0];
-  leftLowerLeg.matrix = leftLegMat;
-  leftLowerLeg.matrix.translate(0, 0.7, -0.0002);
-  leftLowerLeg.matrix.scale(0.8, 1, 0.8);
-  leftLowerLeg.matrix.rotate(10, 0, 0, 1);
-  leftLowerLeg.matrix.rotate(g_llLegAngle, 0, 0, 1);
-  var lll = new Matrix4(leftLowerLeg.matrix);
-  leftLowerLeg.render();
-
-  // Draw the left foot 
-  var leftFoot = new Cube();
-  leftFoot.color = [0.960, 0.871, 0.702, 1.0];
-  leftFoot.matrix = lll;
-  leftFoot.matrix.translate(0, 1, -0.0003);
-  leftFoot.matrix.scale(1, 0.25, 1);
-  leftFoot.matrix.rotate(g_lFoot, 0, 0, 1);
-  leftFoot.render();
-
 } // renderEverything
 
 function click(ev) {

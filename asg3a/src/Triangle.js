@@ -110,9 +110,7 @@ function drawTriangle3DUV(vertices, uv) {
 
   // Bind the buffer object to target
   gl.bindBuffer(gl.ARRAY_BUFFER, uvBuffer);
-  console.log("hi");
-  console.log(uv);
-  console.log("hey");
+ 
   // Write date into the buffer object
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(uv), gl.DYNAMIC_DRAW);
 

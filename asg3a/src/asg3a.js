@@ -207,7 +207,6 @@ function actionsForHtmlUI(){
 
 function main() {
   
-  console.log("bruh");
   // set up the necessary webGL stuff
   setupWebGL();
 
@@ -372,7 +371,6 @@ function drawMonkey(){
    // Draw the body cube
    var body = new Cube();
    body.color = [0.620, 0.170, 0.170, 1.0];
-   body.textureNum = -2;
    body.matrix.translate(0, -.25, 0);
    body.matrix.rotate(-5, 1, 0, 0);
    body.matrix.rotate(-g_bodyAngle, 0, 0, 1);
@@ -390,7 +388,6 @@ function drawMonkey(){
    // Draw the head
    var head = new Cube();
    head.color = [0.640, 0.170, 0.170, 1.0];
-   head.textureNum = -2;
    head.matrix = bodyMat;
    head.matrix.translate(0, 0.65, 0);
    head.matrix.rotate(-g_headAngle, 0, 0, 1);

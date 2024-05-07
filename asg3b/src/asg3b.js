@@ -216,9 +216,8 @@ function main() {
   // do actions based on buttons from HTML
   actionsForHtmlUI();
 
-  // Register function (event handler) to be called on a mouse press
-  canvas.onmousedown = click;
-  canvas.onmousemove = function (ev) { if (ev.buttons == 1) { click(ev) }}
+  document.onkeydown = keydown;
+  
 
   initTextures(gl, 0);
 
@@ -351,7 +350,7 @@ function drawSurroundings(){
   var floor = new Cube();
   floor.color = [0.20, 0.55, 0.20, 1];
   floor.matrix.translate(0, -1, 0);
-  floor.matrix.scale(50, 0, 50);
+  floor.matrix.scale(75, 0, 75);
   floor.matrix.translate(-0.5, 5, -0.5);
   floor.textureNum = -2;
   floor.render();
@@ -361,8 +360,8 @@ function drawSurroundings(){
   sky.textureNum = -1;
   sky.color = [0, 0, 1, 1];
   sky.matrix.translate(0, -1, 0);
-  sky.matrix.scale(50, 50, 50);
-  sky.matrix.translate(-0.5, 0, -0.5);
+  sky.matrix.scale(75, 75, 75);
+  sky.matrix.translate(-0.5, -0.3, -0.5);
   sky.textureNum = 0;
   sky.render();
 }
@@ -588,17 +587,67 @@ function drawBoxes(){
   box1.render();
 }
 
+function keydown(ev){
+  // left
+  if (ev.keyCode == 65){
+    g_Camera.moveLeft(0.5);
+  }
+  // right
+  if(ev.keyCode == 68){
+    g_Camera.moveRight(0.5);
+  }
+  // forward
+  if(ev.keyCode == 87){
+    g_Camera.moveForward(0.5);
+  }
+  // backward
+  if(ev.keyCode == 83){
+    g_Camera.moveBackward(0.5);
+  }
+  if(ev.keyCode == 81){
+    g_Camera.panLeft(10);
+  }
+  if(ev.keyCode == 69){
+    g_Camera.panRight(10);
+  }
+
+  renderEverything();
+}
+
+var g_Camera = new Camera(canvas);
+
+var g_map = [
+  [1, 0, 0, 0, 0, 0, 0, 1],
+  [0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 1, 1, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 1, 1, 0, 1, 0, 0, 0],
+  [1, 0, 0, 0, 0, 0, 0, 1],
+];
+
+function drawMap(){
+  for(x = 0; x < 8; x += 1){
+    for(y = 0; y < 8; y += 1){
+      if(g_map[x][y]==1){
+        
+        var box = new Cube();
+        box.color = [1,1,1,1];
+        box.matrix.translate(x-4, -.75, y-4);
+        box.render()
+      }
+    } // for
+  } // for
+} // drawMap
+
 function renderEverything(){
 
   // pass the projection matrix
-  var projMat = new Matrix4();
-  projMat.setPerspective(90, canvas.width/canvas.height, .1, 100);
-  gl.uniformMatrix4fv(u_ProjectionMatrix, false, projMat.elements);
+  gl.uniformMatrix4fv(u_ProjectionMatrix, false, g_Camera.projMat.elements);
 
   // pass the view matrix
-  var viewMat = new Matrix4();
-  viewMat.setLookAt(1,0,3, 0,0,-100, 0,1,0); // eye, at, up
-  gl.uniformMatrix4fv(u_ViewMatrix, false, viewMat.elements);
+  gl.uniformMatrix4fv(u_ViewMatrix, false, g_Camera.viewMat.elements);
 
   // pass the global rotation matrix
   var globalRotMat = new Matrix4().rotate(g_globalAngle, 0, 1, 0);
@@ -614,18 +663,9 @@ function renderEverything(){
   // draw the monkey
   drawMonkey();
 
-  //drawBoxes();
+  drawMap();
  
 } // renderEverything
-
-function click(ev) {
-  
-  // clear the canvas, redraw all the previous things and now the current one
-  renderEverything();
-
-}
-
-// New Stuff
 
 function initVertexBuffers(gl) {
     var verticesTexCoords = new Float32Array([

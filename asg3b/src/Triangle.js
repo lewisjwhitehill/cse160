@@ -50,9 +50,8 @@ function drawTriangle(vertices) {
 } // drawTriangle
 
 function drawTriangle3D(vertices) {
-    
-  // The number of vertices
-  var n = 3; 
+
+  var n = vertices.length/3;
 
   // Create a buffer object
   var vertexBuffer = gl.createBuffer();
@@ -74,12 +73,12 @@ function drawTriangle3D(vertices) {
 
   gl.drawArrays(gl.TRIANGLES, 0, n);
 
-} // drawTriangle
+} // drawTriangle3D
 
 function drawTriangle3DUV(vertices, uv) {
     
   // The number of vertices
-  var n = 3; 
+  var n = vertices.length/3;
 
   // Create a buffer object
   var vertexBuffer = gl.createBuffer();
@@ -123,4 +122,4 @@ function drawTriangle3DUV(vertices, uv) {
   gl.drawArrays(gl.TRIANGLES, 0, n);
 
 
-} // drawTriangle
+} // drawTriangle3DUV

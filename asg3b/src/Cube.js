@@ -5,6 +5,74 @@ class Cube{
             this.matrix = new Matrix4();
             this.textureNum = -2;
     }
+    renderFaster(){
+
+        var rgba = this.color;
+
+        // Pass the texture number 
+        gl.uniform1i(u_whichTexture, this.textureNum);
+      
+        // Pass the color of a point to u_FragColor variable
+        gl.uniform4f(u_FragColor, rgba[0], rgba[1], rgba[2], rgba[3]);
+
+        // Pass the matrix to the u_ModelMatrix attribute
+        gl.uniformMatrix4fv(u_ModelMatrix, false, this.matrix.elements);
+
+        var allverts = [];
+        var allUVs = [];
+
+        allverts = allverts.concat([0,0,0, 1,1,0, 1,0,0]);
+        allUVs = allUVs.concat([1,0, 0,1, 0,0]);
+        allverts = allverts.concat([0,0,0, 0,1,0, 1,1,0]);
+        allUVs = allUVs.concat([1,0, 1,1, 0,1]);
+        // // Draw the front of the cube 0,1
+        // drawTriangle3DUV( [0,0,0, 1,1,0, 1,0,0], [1,0, 0,1, 0,0]);
+        // drawTriangle3DUV( [0,0,0, 0,1,0, 1,1,0], [1,0, 1,1, 0,1]);
+
+        allverts = allverts.concat( [0,0,1, 1,1,1, 1,0,1]);
+        allUVs = allUVs.concat([1,0, 0,1, 0,0]);
+        allverts = allverts.concat([ 0,0,1, 1,1,1, 0,1,1]);
+        allUVs = allUVs.concat( [1,0, 0,1, 1,1]);
+        // // Draw the back of the cube
+        // drawTriangle3DUV( [0,0,1, 1,1,1, 1,0,1], [1,0, 0,1, 0,0]);
+        // drawTriangle3DUV( [ 0,0,1, 1,1,1, 0,1,1], [1,0, 0,1, 1,1]);
+
+
+        allverts = allverts.concat(  [0.0,1.0,0.0, 0.0,1.0,1.0, 1.0,1.0,1.0]);
+        allUVs = allUVs.concat( [1,1, 1,0, 0,0]);
+        allverts = allverts.concat([0.0,1.0,0.0, 1.0,1.0,1.0, 1.0,1.0,0.0]);
+        allUVs = allUVs.concat(  [1,1, 0,0, 0,1]);
+        // // Draw top of the cube
+        // drawTriangle3DUV( [0.0,1.0,0.0, 0.0,1.0,1.0, 1.0,1.0,1.0], [1,1, 1,0, 0,0]);
+        // drawTriangle3DUV( [0.0,1.0,0.0, 1.0,1.0,1.0, 1.0,1.0,0.0], [1,1, 0,0, 0,1]);
+
+        allverts = allverts.concat( [0.0,0,0.0, 0.0,0,1.0, 1.0,0,1.0]);
+        allUVs = allUVs.concat([1,1, 1,0, 0,0]);
+        allverts = allverts.concat( [0.0,0.0,0.0, 1.0,0.0,1.0, 1.0,0.0,0.0]);
+        allUVs = allUVs.concat([1,1, 0,0, 0,1]);
+        // // Draw bottom of the cube
+        // drawTriangle3DUV( [0.0,0,0.0, 0.0,0,1.0, 1.0,0,1.0], [1,1, 1,0, 0,0]);
+        // drawTriangle3DUV( [0.0,0.0,0.0, 1.0,0.0,1.0, 1.0,0.0,0.0], [1,1, 0,0, 0,1]);
+
+
+        allverts = allverts.concat( [0.0,0.0,0.0, 0.0,0.0,1.0, 0.0,1.0,1.0]);
+        allUVs = allUVs.concat([1,0, 0,0, 0,1]);
+        allverts = allverts.concat( [0.0,1.0,1.0, 0.0,1.0,0.0, 0.0,0.0,0.0]);
+        allUVs = allUVs.concat([0,1, 1,1, 1,0]);
+        // // Draw left side of cube
+        // drawTriangle3DUV( [0.0,0.0,0.0, 0.0,0.0,1.0, 0.0,1.0,1.0], [1,0, 0,0, 0,1] );
+        // drawTriangle3DUV( [0.0,1.0,1.0, 0.0,1.0,0.0, 0.0,0.0,0.0], [0,1, 1,1, 1,0]);
+
+        allverts = allverts.concat( [1.0,0.0,0.0, 1.0,0.0,1.0, 1.0,1.0,1.0]);
+        allUVs = allUVs.concat([1,0, 0,0, 0,1]);
+        allverts = allverts.concat( [1.0,1.0,1.0, 1.0,1.0,0.0, 1.0,0.0,0.0]);
+        allUVs = allUVs.concat([0,1, 1,1, 1,0]);
+        // // Draw right side of cube
+        // drawTriangle3DUV( [1.0,0.0,0.0, 1.0,0.0,1.0, 1.0,1.0,1.0], [1,0, 0,0, 0,1]);
+        // drawTriangle3DUV( [1.0,1.0,1.0, 1.0,1.0,0.0, 1.0,0.0,0.0], [0,1, 1,1, 1,0]);
+        drawTriangle3DUV(allverts, allUVs);
+    
+    } // renderFaster
 
     render(){
 
@@ -56,4 +124,5 @@ class Cube{
 
             
     } // render
-} // class Point
+
+} // class Cube

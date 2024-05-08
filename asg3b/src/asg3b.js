@@ -21,6 +21,7 @@ uniform vec4 u_FragColor;
 uniform sampler2D u_Sampler0;
 uniform sampler2D u_Sampler1;
 uniform sampler2D u_Sampler2;
+uniform sampler2D u_Sampler3;
 uniform int u_whichTexture;
 void main() {
   // Normal Color
@@ -43,6 +44,10 @@ void main() {
     else if(u_whichTexture == -4){
       gl_FragColor = texture2D(u_Sampler2, v_UV);
     }
+  // Message Texture
+    else if(u_whichTexture == -5){
+      gl_FragColor = texture2D(u_Sampler3, v_UV);
+    }
   // If anything else show red for an error
     else{ 
         gl_FragColor = vec4(1, 0, 0, 1.0);
@@ -60,6 +65,7 @@ let u_FragColor;
 let u_Sampler0;
 let u_Sampler1;
 let u_Sampler2;
+let u_Sampler3;
 let u_whichTexture;
 let u_Size;
 let u_ProjectionMatrix;
@@ -163,6 +169,13 @@ function setupGLSL(){
   u_Sampler2 = gl.getUniformLocation(gl.program, 'u_Sampler2');
   if (!u_Sampler2) {
     console.log('Failed to get the storage location of u_Sampler2');
+    return false;
+  }
+
+  // Get the storage location of u_Sampler1
+  u_Sampler3 = gl.getUniformLocation(gl.program, 'u_Sampler3');
+  if (!u_Sampler3) {
+    console.log('Failed to get the storage location of u_Sampler3');
     return false;
   }
 
@@ -390,6 +403,14 @@ function drawSurroundings(){
   sky.matrix.translate(-0.5, -0.3, -0.5);
   sky.textureNum = 0;
   sky.render();
+}
+
+function drawStoryElements(){
+  var directionsBox = new Cube();
+  directionsBox.textureNum = -5;
+  directionsBox.matrix.translate(0, 0.5, 0.1);
+  directionsBox.matrix.scale(1, 1, 0.1);
+  directionsBox.render();
 }
 
 function drawMonkey(){
@@ -706,7 +727,11 @@ function renderEverything(){
   // draw the monkey
   drawMonkey();
 
+  // draw the walls
   drawMap();
+
+  // draw story elements
+  drawStoryElements();
  
 } // renderEverything
 
@@ -791,6 +816,18 @@ function initTextures() {
 
     // Tell the browser to load an image
     image2.src = '../resources/grass.jpg';
+
+    // message image for story
+    var image3 = new Image();  // Create the image object
+    if (!image3) {
+      console.log('Failed to create the image3 object');
+      return false;
+    }
+    // Register the event handler to be called on loading an image
+    image3.onload = function(){ sendImageToTEXTURE3(image3); };
+
+    // Tell the browser to load an image
+    image3.src = '../resources/StoryMessage.jpg';
   
     return true;
 }
@@ -864,6 +901,30 @@ function sendImageToTEXTURE2(image) {
   
   // Set the texture unit 0 to the sampler
   gl.uniform1i(u_Sampler2, 2);
+
+}
+
+function sendImageToTEXTURE3(image) {
+
+  var texture = gl.createTexture();   // Create a texture object
+  if (!texture) {
+    console.log('Failed to create the texture object');
+    return false;
+  }
+
+  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1); // Flip the image's y axis
+  // Enable texture unit0
+  gl.activeTexture(gl.TEXTURE3);
+  // Bind the texture object to the target
+  gl.bindTexture(gl.TEXTURE_2D, texture);
+
+  // Set the texture parameters
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+  // Set the texture image
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, image);
+  
+  // Set the texture unit 0 to the sampler
+  gl.uniform1i(u_Sampler3, 3);
 
 }
 

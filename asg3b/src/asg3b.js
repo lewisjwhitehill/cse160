@@ -19,21 +19,32 @@ precision mediump float;
 varying vec2 v_UV;
 uniform vec4 u_FragColor;
 uniform sampler2D u_Sampler0;
+uniform sampler2D u_Sampler1;
+uniform sampler2D u_Sampler2;
 uniform int u_whichTexture;
 void main() {
-
+  // Normal Color
     if(u_whichTexture == -2){
         gl_FragColor = u_FragColor;
     }
+  // Cool looking color
     else if( u_whichTexture == -1){
         gl_FragColor = vec4(v_UV, 1.0, 1.0);
     }
+  // Sky Texture
     else if( u_whichTexture == 0){
         gl_FragColor = texture2D(u_Sampler0, v_UV);
-        
     }
-    else{ // For error make it reddish
-        
+  // Mossy Wall Texture
+    else if(u_whichTexture == -3){
+      gl_FragColor = texture2D(u_Sampler1, v_UV);
+    }
+  // Grass Texture
+    else if(u_whichTexture == -4){
+      gl_FragColor = texture2D(u_Sampler2, v_UV);
+    }
+  // If anything else show red for an error
+    else{ 
         gl_FragColor = vec4(1, 0, 0, 1.0);
     }
 }`;
@@ -47,6 +58,8 @@ let a_Position;
 let a_UV;
 let u_FragColor;
 let u_Sampler0;
+let u_Sampler1;
+let u_Sampler2;
 let u_whichTexture;
 let u_Size;
 let u_ProjectionMatrix;
@@ -136,6 +149,20 @@ function setupGLSL(){
   u_Sampler0 = gl.getUniformLocation(gl.program, 'u_Sampler0');
   if (!u_Sampler0) {
     console.log('Failed to get the storage location of u_Sampler0');
+    return false;
+  }
+
+  // Get the storage location of u_Sampler1
+  u_Sampler1 = gl.getUniformLocation(gl.program, 'u_Sampler1');
+  if (!u_Sampler1) {
+    console.log('Failed to get the storage location of u_Sampler1');
+    return false;
+  }
+
+  // Get the storage location of u_Sampler1
+  u_Sampler2 = gl.getUniformLocation(gl.program, 'u_Sampler2');
+  if (!u_Sampler2) {
+    console.log('Failed to get the storage location of u_Sampler2');
     return false;
   }
 
@@ -344,7 +371,6 @@ function convertCoordsToGL(ev){
 
 } // convertCoordsToGL
 
-
 function drawSurroundings(){
   // Draw the floor
   var floor = new Cube();
@@ -352,7 +378,7 @@ function drawSurroundings(){
   floor.matrix.translate(0, -1, 0);
   floor.matrix.scale(75, 0, 75);
   floor.matrix.translate(-0.5, 5, -0.5);
-  floor.textureNum = -2;
+  floor.textureNum = -4;
   floor.render();
 
   // Draw the sky
@@ -579,14 +605,6 @@ function drawMonkey(){
  
 }
 
-function drawBoxes(){
-  var box1 = new Cube();
-  box1.textureNum = -1;
-  box1.matrix.translate(-0.5, 2, 0);
-  box1.matrix.rotate(g_b1RotateAngle, g_b1RotateAngle, g_b1RotateAngle, 1);
-  box1.render();
-}
-
 function keydown(ev){
   // left
   if (ev.keyCode == 65){
@@ -655,9 +673,8 @@ function drawMap(){
   for(x = 0; x < 32; x += 1){
     for(y = 0; y < 32; y += 1){
       if(g_map[x][y]==1){
-       
-        
         var box = new Cube();
+        box.textureNum = -3;
         box.color = [1,1,1,1];
         box.matrix.translate(x-4, -.75, y-4);
         box.matrix.scale(1, 2, 1);
@@ -739,16 +756,41 @@ function initVertexBuffers(gl) {
 
 function initTextures() {
   
-    var image = new Image();  // Create the image object
-    if (!image) {
-      console.log('Failed to create the image object');
+    // sky image for skybox
+    var image0 = new Image();  // Create the image object
+    if (!image0) {
+      console.log('Failed to create the image0 object');
       return false;
     }
     // Register the event handler to be called on loading an image
-    image.onload = function(){ sendImageToTEXTURE0(image); };
+    image0.onload = function(){ sendImageToTEXTURE0(image0); };
 
     // Tell the browser to load an image
-    image.src = '../resources/sky.jpg';
+    image0.src = '../resources/sky.jpg';
+
+    // mossy wall image for maze walls
+    var image1 = new Image();  // Create the image object
+    if (!image1) {
+      console.log('Failed to create the image1 object');
+      return false;
+    }
+    // Register the event handler to be called on loading an image
+    image1.onload = function(){ sendImageToTEXTURE1(image1); };
+
+    // Tell the browser to load an image
+    image1.src = '../resources/mossywall.jpg';
+
+    // grass image for maze walls
+    var image2 = new Image();  // Create the image object
+    if (!image2) {
+      console.log('Failed to create the image2 object');
+      return false;
+    }
+    // Register the event handler to be called on loading an image
+    image2.onload = function(){ sendImageToTEXTURE2(image2); };
+
+    // Tell the browser to load an image
+    image2.src = '../resources/grass.jpg';
   
     return true;
 }
@@ -775,5 +817,53 @@ function sendImageToTEXTURE0(image) {
     // Set the texture unit 0 to the sampler
     gl.uniform1i(u_Sampler0, 0);
   
+}
+
+function sendImageToTEXTURE1(image) {
+
+  var texture = gl.createTexture();   // Create a texture object
+  if (!texture) {
+    console.log('Failed to create the texture object');
+    return false;
+  }
+
+  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1); // Flip the image's y axis
+  // Enable texture unit0
+  gl.activeTexture(gl.TEXTURE1);
+  // Bind the texture object to the target
+  gl.bindTexture(gl.TEXTURE_2D, texture);
+
+  // Set the texture parameters
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+  // Set the texture image
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, image);
+  
+  // Set the texture unit 0 to the sampler
+  gl.uniform1i(u_Sampler1, 1);
+
+}
+
+function sendImageToTEXTURE2(image) {
+
+  var texture = gl.createTexture();   // Create a texture object
+  if (!texture) {
+    console.log('Failed to create the texture object');
+    return false;
+  }
+
+  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1); // Flip the image's y axis
+  // Enable texture unit0
+  gl.activeTexture(gl.TEXTURE2);
+  // Bind the texture object to the target
+  gl.bindTexture(gl.TEXTURE_2D, texture);
+
+  // Set the texture parameters
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+  // Set the texture image
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, image);
+  
+  // Set the texture unit 0 to the sampler
+  gl.uniform1i(u_Sampler2, 2);
+
 }
 

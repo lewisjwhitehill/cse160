@@ -644,10 +644,14 @@ function keydown(ev){
     g_Camera.moveBackward(0.5);
   }
   if(ev.keyCode == 81){
+    // 1210
     g_Camera.panLeft(10);
+    console.log(g_Camera.at.elements);
   }
   if(ev.keyCode == 69){
+    // 1210
     g_Camera.panRight(10);
+    console.log(g_Camera.at.elements);
   }
 
   renderEverything();
@@ -706,6 +710,9 @@ function drawMap(){
 } // drawMap
 
 function renderEverything(){
+
+  // update view matrix based on camera
+  g_Camera.setViewMat();
 
   // pass the projection matrix
   gl.uniformMatrix4fv(u_ProjectionMatrix, false, g_Camera.projMat.elements);

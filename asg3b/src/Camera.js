@@ -32,7 +32,7 @@ class Camera{
         f.mul(speed);
         this.eye.add(f);
         this.at.add(f);
-        this.setViewMat();
+       
     }
       
     moveBackward(speed){
@@ -44,7 +44,7 @@ class Camera{
         b.mul(speed);
         this.eye.add(b);
         this.at.add(b);
-        this.setViewMat();
+        
     }
 
     moveLeft(speed){
@@ -58,7 +58,7 @@ class Camera{
         s.mul(speed);
         this.eye.add(s);
         this.at.add(s);
-        this.setViewMat();
+        
     }
 
     moveRight(speed){
@@ -72,19 +72,19 @@ class Camera{
         s.mul(speed);
         this.eye.add(s);
         this.at.add(s);
-        this.setViewMat();
+        
     }
       
-    panLeft(alpha){
+    panLeft(alpha=10){
         let f = new Vector3();
         f.set(this.at);
         f.sub(this.eye);
         var rotationMatrix = new Matrix4();
         rotationMatrix.setRotate(alpha, this.up.elements[0], this.up.elements[1], this.up.elements[2]);
         var fprime = rotationMatrix.multiplyVector3(f);
+        this.at.set(this.eye);
         this.at.add(fprime);
-        this.setViewMat();
-        return fprime.elements;
+       
     }
 
     panRight(alpha){
@@ -94,8 +94,9 @@ class Camera{
         var rotationMatrix = new Matrix4();
         rotationMatrix.setRotate(-alpha, this.up.elements[0], this.up.elements[1], this.up.elements[2]);
         var fprime = rotationMatrix.multiplyVector3(f);
+        this.at.set(this.eye);
         this.at.add(fprime);
-        this.setViewMat();
+      
     }
 
 }

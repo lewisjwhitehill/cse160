@@ -217,6 +217,11 @@ function actionsForHtmlUI(){
 
   // special events
   canvas.onclick = function(ev){ if(ev.shiftKey == true){ g_rightArmAnimation = true; shiftClickStartTime = performance.now() / 1000.0;}};
+  canvas.addEventListener('mousemove', handleMouseMove);
+  // Reset lastMouseX when the mouse button is released
+  canvas.addEventListener('mouseup', function(ev) {
+    lastMouseX = null;
+  });
 
   // Button Events
 
@@ -245,6 +250,27 @@ function actionsForHtmlUI(){
 
 } // actionsForHtmlUI
 
+// Define variables to store previous mouse position
+var lastMouseX = null;
+
+function handleMouseMove(event) {
+    if (lastMouseX !== null) {
+        // Calculate change in mouse position
+        var deltaX = event.clientX - lastMouseX;
+        
+        // Update camera based on mouse movement
+        if (deltaX !== 0) {
+            var sensitivity = 0.2; // Adjust sensitivity as needed
+            var angle = sensitivity * deltaX;
+            g_Camera.pan(angle); // Implement a pan function in your Camera class
+            renderEverything(); // Render the scene after updating the camera
+        }
+    }
+    // Store current mouse position for the next movement calculation
+    lastMouseX = event.clientX;
+}
+
+
 function main() {
   
   // set up the necessary webGL stuff
@@ -263,6 +289,8 @@ function main() {
 
   // Specify the color for clearing <canvas>
   gl.clearColor(0.0, 0.0, 0.0, 1.0);
+
+
 
   // start the animation
   requestAnimationFrame(tick);
@@ -644,14 +672,10 @@ function keydown(ev){
     g_Camera.moveBackward(0.5);
   }
   if(ev.keyCode == 81){
-    // 1210
     g_Camera.panLeft(10);
-    console.log(g_Camera.at.elements);
   }
   if(ev.keyCode == 69){
-    // 1210
     g_Camera.panRight(10);
-    console.log(g_Camera.at.elements);
   }
 
   renderEverything();

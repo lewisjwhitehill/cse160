@@ -74,6 +74,18 @@ class Camera{
         this.at.add(s);
         
     }
+
+    pan(alpha){
+        let f = new Vector3();
+        f.set(this.at);
+        f.sub(this.eye);
+        var rotationMatrix = new Matrix4();
+        rotationMatrix.setRotate(-alpha, this.up.elements[0], this.up.elements[1], this.up.elements[2]);
+        var fprime = rotationMatrix.multiplyVector3(f);
+        this.at.set(this.eye);
+        this.at.add(fprime);
+      
+    }
       
     panLeft(alpha=10){
         let f = new Vector3();
@@ -87,7 +99,7 @@ class Camera{
        
     }
 
-    panRight(alpha){
+    panRight(alpha=10){
         let f = new Vector3();
         f.set(this.at);
         f.sub(this.eye);

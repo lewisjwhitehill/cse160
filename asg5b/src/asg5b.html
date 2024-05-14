@@ -1,0 +1,227 @@
+<!-- Licensed under a BSD license. See license.html for license -->
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Three.js - Fundamentals with animation</title>
+  </head>
+  <body>
+    Lewis Whitehill<br><br>
+    lwhitehi@ucsc.edu <br><br>
+    Notes to Grader: I have no idea why it's so low res.<br><br>
+    <canvas id="c"></canvas>
+  </body>
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://threejs.org/build/three.module.js",
+    "three/addons/": "https://threejs.org/examples/jsm/"
+  }
+}
+</script>
+
+<style>
+    html, body {
+  margin: 0;
+  height: 100%;
+    }
+    #c {
+    width: 100%;
+    height: 100%;
+    display: block;
+    }
+</style>
+
+<script type="module">
+    import * as THREE from 'three';
+    import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
+    import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
+    import {OBJLoader} from 'three/addons/loaders/OBJLoader.js';
+    import {MTLLoader} from 'three/addons/loaders/MTLLoader.js';
+
+    class ColorGUIHelper {
+        constructor(object, prop) {
+            this.object = object;
+            this.prop = prop;
+        }
+        get value() {
+            return `#${this.object[this.prop].getHexString()}`;
+        }
+        set value(hexString) {
+            this.object[this.prop].set(hexString);
+        }
+    }
+
+    function main(){
+
+        function makeInstance(geometry, material, x) {
+            
+            const shape = new THREE.Mesh(geometry, material);
+            scene.add(shape);
+            
+            shape.position.x = x;
+            shape.position.y = 2;
+            
+            return shape;
+        }
+
+        // creating the canvas that we will draw on
+        const canvas = document.querySelector('#c');
+        // the thing responsible for actually taking all the data you provide and rendering it to the canvas
+        const renderer = new THREE.WebGLRenderer( {antialias : true, canvas } );
+
+        // Create a perspective camera
+        const fov = 45; //  takes degress not radians
+        const aspect = 2;  // the canvas default is 300x150 pixels so 300/150 =2
+        
+        /* represents the space in front of the camera that will be rendered. 
+         Anything before that range or after that range will be clipped (not drawn).
+         Height of this is determined by fov*/
+        const near = 0.1;
+        const far = 100;
+        const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+        camera.position.set(0, 10, 20);
+
+        // pass orbit controls to the camera
+        const controls = new OrbitControls(camera, canvas);
+        controls.target.set(0, 5, 0);
+        controls.update();
+
+        // creating the scene, what everything needs to be added to 
+        const scene = new THREE.Scene();
+
+        // Make a ground plane
+        const planeSize = 40;
+        const loader = new THREE.TextureLoader();
+        const texture2 = loader.load('https://threejs.org/manual/examples/resources/images/checker.png');
+        texture2.wrapS = THREE.RepeatWrapping;
+        texture2.wrapT = THREE.RepeatWrapping;
+        texture2.magFilter = THREE.NearestFilter;
+        texture2.colorSpace = THREE.SRGBColorSpace;
+        const repeats = planeSize / 2;
+        texture2.repeat.set(repeats, repeats);
+
+        // Make a plane geometry
+        const planeGeo = new THREE.PlaneGeometry(planeSize, planeSize);
+        const planeMat = new THREE.MeshPhongMaterial({
+        map: texture2,
+        side: THREE.DoubleSide,
+        });
+        const mesh = new THREE.Mesh(planeGeo, planeMat);
+        mesh.rotation.x = Math.PI * -.5;
+        scene.add(mesh);
+
+        // Creating a directional light
+        const color = 0xFFFFFF;
+        const intensity = 3;
+        const light = new THREE.DirectionalLight(color, intensity);
+        light.position.set(-1, 20, 4);
+        scene.add(light);
+
+
+        const gui = new GUI();
+        gui.addColor(new ColorGUIHelper(light, 'color'), 'value').name('color');
+        gui.add(light, 'intensity', 0, 2, 0.01);
+
+        // Creating the geometry that defines a cube
+        const boxWidth = 1;
+        const boxHeight = 1;
+        const boxDepth = 1;
+        const cubeGeometry = new THREE.BoxGeometry(boxWidth, boxHeight, boxDepth);
+
+
+        // Creating the geometry that defines a sphere
+        const sphereRadius = 1;
+        const sphereWidthSegments = 32;
+        const sphereHeightSegments = 32;
+        const sphereGeometry = new THREE.SphereGeometry(sphereRadius, sphereWidthSegments, sphereHeightSegments);
+
+        // Creating the geometry that defines a cylinder
+        const cylinderRadiusTop = 1; // Radius of the cylinder at the top
+        const cylinderRadiusBottom = 1; // Radius of the cylinder at the bottom
+        const cylinderHeight = 2; // Height of the cylinder
+        const cylinderRadialSegments = 32; // Number of segmented faces around the circumference of the cylinder
+        const cylinderHeightSegments = 1; // Number of segmented faces along the height of the cylinder
+        const openEnded = false; // Whether the ends of the cylinder are open or capped
+
+        const cylinderGeometry = new THREE.CylinderGeometry(
+            cylinderRadiusTop,
+            cylinderRadiusBottom,
+            cylinderHeight,
+            cylinderRadialSegments,
+            cylinderHeightSegments,
+            openEnded
+        );
+
+
+
+        const texture = loader.load( 'https://threejs.org/manual/examples/resources/images/wall.jpg' );
+        texture.colorSpace = THREE.SRGBColorSpace;
+
+        const coolmaterial = new THREE.MeshBasicMaterial( {
+            map: texture
+        } );
+
+
+        // creating an object
+        const mtlLoader = new MTLLoader();
+
+        mtlLoader.load('https://threejs.org/manual/examples/resources/models/windmill/windmill.mtl', (mtl) => {
+            mtl.preload();
+            const objLoader = new OBJLoader();
+            objLoader.setMaterials(mtl);
+
+                objLoader.load('https://threejs.org/manual/examples/resources/models/windmill/windmill.obj', (root) => {
+                    root.position.z = -5;
+                    root.rotation.y = -90;
+                    scene.add(root);
+                });
+            
+        });
+
+
+        // creating a texture
+
+
+
+
+        const material1 = new THREE.MeshPhongMaterial({color: 0x8844aa});
+        const material2 = new THREE.MeshPhongMaterial({color: 0xaa8844});
+
+        // Create some shapes
+        const shapes = [
+            makeInstance(cubeGeometry, coolmaterial, 0),
+            makeInstance(sphereGeometry, material1, -2),
+            makeInstance(cylinderGeometry, material2, 2),
+        ];
+
+        // To animate the cube we'll render it inside a render loop
+        function render(time) {
+
+            time *= 0.001;  // convert time to seconds
+            
+            shapes.forEach( ( shape, ndx ) => {
+
+                const speed = 1 + ndx * .1;
+                const rot = time * speed;
+                shape.rotation.x = rot;
+                shape.rotation.y = rot;
+
+            } );
+            
+            renderer.render(scene, camera);
+            
+            requestAnimationFrame(render);
+        }
+
+        // request to the browser that you want to animate something, passsing it the function to be called
+        requestAnimationFrame(render);
+
+
+    }
+
+    main();
+
+</script>
+</html>

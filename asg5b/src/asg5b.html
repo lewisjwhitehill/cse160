@@ -34,128 +34,313 @@
 </style>
 
 <script type="module">
-    import * as THREE from 'three';
-    import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
-    import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
-    import {OBJLoader} from 'three/addons/loaders/OBJLoader.js';
-    import {MTLLoader} from 'three/addons/loaders/MTLLoader.js';
+
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
+import {OBJLoader} from 'three/addons/loaders/OBJLoader.js';
+import {MTLLoader} from 'three/addons/loaders/MTLLoader.js';
+
+function main() {
 
     class ColorGUIHelper {
-        constructor(object, prop) {
+
+        constructor( object, prop ) {
+
             this.object = object;
             this.prop = prop;
+
         }
         get value() {
-            return `#${this.object[this.prop].getHexString()}`;
+
+            return `#${this.object[ this.prop ].getHexString()}`;
+
         }
-        set value(hexString) {
-            this.object[this.prop].set(hexString);
+        set value( hexString ) {
+
+            this.object[ this.prop ].set( hexString );
+
         }
+
     }
 
-    function main(){
+    // Set up canvas, renderer, gui, and loader
+	const canvas = document.querySelector( '#c' );
+	const renderer = new THREE.WebGLRenderer( { antialias: true, canvas } );
+    const loader = new THREE.TextureLoader();
+    const mtlLoader = new MTLLoader();
+    const gui = new GUI();
 
-        function makeInstance(geometry, material, x) {
-            
-            const shape = new THREE.Mesh(geometry, material);
-            scene.add(shape);
-            
-            shape.position.x = x;
-            shape.position.y = 2;
-            
-            return shape;
-        }
+    // Set up values to create the camera
+	const fov = 45;
+	const aspect = 2; // the canvas default
+	const near = 0.1;
+	const far = 100;
+	const camera = new THREE.PerspectiveCamera( fov, aspect, near, far );
+	camera.position.set( 0, 10, 20 );
 
-        // creating the canvas that we will draw on
-        const canvas = document.querySelector('#c');
-        // the thing responsible for actually taking all the data you provide and rendering it to the canvas
-        const renderer = new THREE.WebGLRenderer( {antialias : true, canvas } );
+    // Set up orbit controls
+	const controls = new OrbitControls( camera, canvas );
+	controls.target.set( 0, 5, 0 );
+	controls.update();
 
-        // Create a perspective camera
-        const fov = 45; //  takes degress not radians
-        const aspect = 2;  // the canvas default is 300x150 pixels so 300/150 =2
-        
-        /* represents the space in front of the camera that will be rendered. 
-         Anything before that range or after that range will be clipped (not drawn).
-         Height of this is determined by fov*/
-        const near = 0.1;
-        const far = 100;
-        const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
-        camera.position.set(0, 10, 20);
+    // Set up the scene!
+	const scene = new THREE.Scene();
+	scene.background = new THREE.Color( 'black' );
 
-        // pass orbit controls to the camera
-        const controls = new OrbitControls(camera, canvas);
-        controls.target.set(0, 5, 0);
-        controls.update();
+    // Creating a plane and adding it to the scene
+	{
 
-        // creating the scene, what everything needs to be added to 
-        const scene = new THREE.Scene();
+		const planeSize = 40;
+		const texture = loader.load( '../resources/blueandgrey.jpeg' );
+		texture.wrapS = THREE.RepeatWrapping;
+		texture.wrapT = THREE.RepeatWrapping;
+		texture.magFilter = THREE.NearestFilter;
+		texture.colorSpace = THREE.SRGBColorSpace;
+		const repeats = planeSize / 2;
+		texture.repeat.set( repeats, repeats );
 
-        // Make a ground plane
-        const planeSize = 40;
-        const loader = new THREE.TextureLoader();
-        const texture2 = loader.load('https://threejs.org/manual/examples/resources/images/checker.png');
-        texture2.wrapS = THREE.RepeatWrapping;
-        texture2.wrapT = THREE.RepeatWrapping;
-        texture2.magFilter = THREE.NearestFilter;
-        texture2.colorSpace = THREE.SRGBColorSpace;
-        const repeats = planeSize / 2;
-        texture2.repeat.set(repeats, repeats);
+		const planeGeo = new THREE.PlaneGeometry( planeSize, planeSize );
+		const planeMat = new THREE.MeshPhongMaterial( {
+			map: texture,
+			side: THREE.DoubleSide,
+		} );
+		const mesh = new THREE.Mesh( planeGeo, planeMat );
+		mesh.rotation.x = Math.PI * - .5;
+		scene.add( mesh );
 
-        // Make a plane geometry
-        const planeGeo = new THREE.PlaneGeometry(planeSize, planeSize);
-        const planeMat = new THREE.MeshPhongMaterial({
-        map: texture2,
-        side: THREE.DoubleSide,
+	}
+
+    // Creating a skybox and adding it to the scene
+    {
+
+        const cube_loader = new THREE.CubeTextureLoader();
+        const skybox_texture = cube_loader.load( [
+			'../resources/px.png',
+			'../resources/nx.png',
+            '../resources/py.png',
+            '../resources/ny.png',
+			'../resources/pz.png',
+			'../resources/nz.png',
+		] );
+        scene.background = skybox_texture;
+    }
+
+    // Creating the lincoln memorial exterior
+    
+    // Creating the base 
+	{
+
+        const limestone_texture = loader.load('../resources/limestone.png', () => {
+            renderer.render(scene, camera);
         });
-        const mesh = new THREE.Mesh(planeGeo, planeMat);
-        mesh.rotation.x = Math.PI * -.5;
-        scene.add(mesh);
 
-        // Creating a directional light
-        const color = 0xFFFFFF;
-        const intensity = 3;
-        const light = new THREE.DirectionalLight(color, intensity);
-        light.position.set(-1, 20, 4);
-        scene.add(light);
+		const cubeGeo1 = new THREE.BoxGeometry( 20, 0.5, 10 );
+		const cubeMat1 = new THREE.MeshPhongMaterial( {map: limestone_texture, color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 0.3});
+		const mesh1 = new THREE.Mesh( cubeGeo1, cubeMat1 );
+		mesh1.position.set(0, 0, -10 );
+		scene.add( mesh1 );
 
+		const cubeGeo2 = new THREE.BoxGeometry( 19, 0.5, 9 );
+		const cubeMat2 = new THREE.MeshPhongMaterial( { map: limestone_texture, color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 0.3 } );
+		const mesh2 = new THREE.Mesh( cubeGeo2, cubeMat2 );
+		mesh2.position.set(0, 0.2, -10 );
+		scene.add( mesh2 );
 
-        const gui = new GUI();
-        gui.addColor(new ColorGUIHelper(light, 'color'), 'value').name('color');
-        gui.add(light, 'intensity', 0, 2, 0.01);
+        const cubeGeo3 = new THREE.BoxGeometry( 18, 0.5, 8 );
+		const cubeMat3 = new THREE.MeshPhongMaterial( { map: limestone_texture, color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 0.3 } );
+		const mesh3 = new THREE.Mesh( cubeGeo3, cubeMat3 );
+		mesh3.position.set(0, 0.6, -10 );
+		scene.add( mesh3 );
 
-        // Creating the geometry that defines a cube
-        const boxWidth = 1;
-        const boxHeight = 1;
-        const boxDepth = 1;
-        const cubeGeometry = new THREE.BoxGeometry(boxWidth, boxHeight, boxDepth);
+	}
 
+    // Creating the pillars
+    {
 
-        // Creating the geometry that defines a sphere
-        const sphereRadius = 1;
-        const sphereWidthSegments = 32;
-        const sphereHeightSegments = 32;
-        const sphereGeometry = new THREE.SphereGeometry(sphereRadius, sphereWidthSegments, sphereHeightSegments);
+        const limestone_texture = loader.load('../resources/pillartexture.jpeg', () => {
+            renderer.render(scene, camera);
+        });
 
-        // Creating the geometry that defines a cylinder
-        const cylinderRadiusTop = 1; // Radius of the cylinder at the top
-        const cylinderRadiusBottom = 1; // Radius of the cylinder at the bottom
-        const cylinderHeight = 2; // Height of the cylinder
-        const cylinderRadialSegments = 32; // Number of segmented faces around the circumference of the cylinder
-        const cylinderHeightSegments = 1; // Number of segmented faces along the height of the cylinder
-        const openEnded = false; // Whether the ends of the cylinder are open or capped
+        // left most pillar from front view
+        const cylgeo1 = new THREE.CylinderGeometry(0.5, 0.5, 10, 32);
+        const cyl1mat1 = new THREE.MeshBasicMaterial({ map: limestone_texture });
+        const cylmesh1 = new THREE.Mesh(cylgeo1, cyl1mat1);
+        cylmesh1.position.set(-8, 0.5, -7);
+        scene.add(cylmesh1);
 
-        const cylinderGeometry = new THREE.CylinderGeometry(
-            cylinderRadiusTop,
-            cylinderRadiusBottom,
-            cylinderHeight,
-            cylinderRadialSegments,
-            cylinderHeightSegments,
-            openEnded
-        );
+        // left side pillar #1
+        const cylgeo4 = new THREE.CylinderGeometry(0.5, 0.5, 10, 32);
+        const cyl1mat4 = new THREE.MeshBasicMaterial({ map: limestone_texture });
+        const cylmesh4 = new THREE.Mesh(cylgeo4, cyl1mat4);
+        cylmesh4.position.set(-6, 0.5, -7);
+        scene.add(cylmesh4);
 
+        // left side pillar #2
+        const cylgeo5 = new THREE.CylinderGeometry(0.5, 0.5, 10, 32);
+        const cyl1mat5 = new THREE.MeshBasicMaterial({ map: limestone_texture });
+        const cylmesh5 = new THREE.Mesh(cylgeo5, cyl1mat5);
+        cylmesh5.position.set(-4, 0.5, -7);
+        scene.add(cylmesh5);
 
+         // left side pillar #3
+        const cylgeo6 = new THREE.CylinderGeometry(0.5, 0.5, 10, 32);
+        const cyl1mat6 = new THREE.MeshBasicMaterial({ map: limestone_texture });
+        const cylmesh6 = new THREE.Mesh(cylgeo6, cyl1mat6);
+        cylmesh6.position.set(-2, 0.5, -7);
+        scene.add(cylmesh6);
 
+        // center pillar from front view
+        const cylgeo3 = new THREE.CylinderGeometry(0.5, 0.5, 10, 32);
+        const cyl1mat3 = new THREE.MeshBasicMaterial({ map: limestone_texture });
+        const cylmesh3 = new THREE.Mesh(cylgeo3, cyl1mat3);
+        cylmesh3.position.set(0, 0.5, -7);
+        scene.add(cylmesh3);
+
+        // right side pillar #1
+        const cylgeo7 = new THREE.CylinderGeometry(0.5, 0.5, 10, 32);
+        const cyl1mat7 = new THREE.MeshBasicMaterial({ map: limestone_texture });
+        const cylmesh7 = new THREE.Mesh(cylgeo7, cyl1mat7);
+        cylmesh7.position.set(2, 0.5, -7);
+        scene.add(cylmesh7);
+
+        // left side pillar #2
+        const cylgeo8 = new THREE.CylinderGeometry(0.5, 0.5, 10, 32);
+        const cyl1mat8 = new THREE.MeshBasicMaterial({ map: limestone_texture });
+        const cylmesh8 = new THREE.Mesh(cylgeo8, cyl1mat8);
+        cylmesh8.position.set(4, 0.5, -7);
+        scene.add(cylmesh8);
+
+         // left side pillar #3
+        const cylgeo9 = new THREE.CylinderGeometry(0.5, 0.5, 10, 32);
+        const cyl1mat9 = new THREE.MeshBasicMaterial({ map: limestone_texture });
+        const cylmesh9 = new THREE.Mesh(cylgeo9, cyl1mat9);
+        cylmesh9.position.set(6, 0.5, -7);
+        scene.add(cylmesh9);
+
+        // right most pillar from front view
+        const cylgeo2 = new THREE.CylinderGeometry(0.5, 0.5, 10, 32);
+        const cyl1mat2 = new THREE.MeshBasicMaterial({ map: limestone_texture });
+        const cylmesh2 = new THREE.Mesh(cylgeo2, cyl1mat2);
+        cylmesh2.position.set(8, 0.5, -7);
+        scene.add(cylmesh2);
+
+        // Back pillars /////////////////////////////////////////////////
+     
+        // left most pillar from rear view
+        const cylgeo10 = new THREE.CylinderGeometry(0.5, 0.5, 10, 32);
+        const cyl1mat10 = new THREE.MeshBasicMaterial({ map: limestone_texture });
+        const cylmesh10 = new THREE.Mesh(cylgeo10, cyl1mat10);
+        cylmesh10.position.set(-8, 0.5, -13);
+        scene.add(cylmesh10);
+
+        // left side pillar #1 from rear view
+        const cylgeo11 = new THREE.CylinderGeometry(0.5, 0.5, 10, 32);
+        const cyl1mat11 = new THREE.MeshBasicMaterial({ map: limestone_texture });
+        const cylmesh11 = new THREE.Mesh(cylgeo11, cyl1mat11);
+        cylmesh11.position.set(-6, 0.5, -13);
+        scene.add(cylmesh11);
+
+        // left side pillar #2 from rear view
+        const cylgeo12 = new THREE.CylinderGeometry(0.5, 0.5, 10, 32);
+        const cyl1mat12 = new THREE.MeshBasicMaterial({ map: limestone_texture });
+        const cylmesh12 = new THREE.Mesh(cylgeo12, cyl1mat12);
+        cylmesh12.position.set(-4, 0.5, -13);
+        scene.add(cylmesh12);
+
+        // left side pillar #3 from rear view
+        const cylgeo13 = new THREE.CylinderGeometry(0.5, 0.5, 10, 32);
+        const cyl1mat13 = new THREE.MeshBasicMaterial({ map: limestone_texture });
+        const cylmesh13 = new THREE.Mesh(cylgeo13, cyl1mat13);
+        cylmesh13.position.set(-2, 0.5, -13);
+        scene.add(cylmesh13);
+
+        // center pillar from rear view
+        const cylgeo14 = new THREE.CylinderGeometry(0.5, 0.5, 10, 32);
+        const cyl1mat14 = new THREE.MeshBasicMaterial({ map: limestone_texture });
+        const cylmesh14 = new THREE.Mesh(cylgeo14, cyl1mat14);
+        cylmesh14.position.set(0, 0.5, -13);
+        scene.add(cylmesh14);
+
+        // right side pillar #1 from rear view
+        const cylgeo15 = new THREE.CylinderGeometry(0.5, 0.5, 10, 32);
+        const cyl1mat15 = new THREE.MeshBasicMaterial({ map: limestone_texture });
+        const cylmesh15 = new THREE.Mesh(cylgeo15, cyl1mat15);
+        cylmesh15.position.set(2, 0.5, -13);
+        scene.add(cylmesh15);
+
+        // right side pillar #2 from rear view
+        const cylgeo16 = new THREE.CylinderGeometry(0.5, 0.5, 10, 32);
+        const cyl1mat16 = new THREE.MeshBasicMaterial({ map: limestone_texture });
+        const cylmesh16 = new THREE.Mesh(cylgeo16, cyl1mat16);
+        cylmesh16.position.set(4, 0.5, -13);
+        scene.add(cylmesh16);
+
+        // right side pillar #3 from rear view
+        const cylgeo17 = new THREE.CylinderGeometry(0.5, 0.5, 10, 32);
+        const cyl1mat17 = new THREE.MeshBasicMaterial({ map: limestone_texture });
+        const cylmesh17 = new THREE.Mesh(cylgeo17, cyl1mat17);
+        cylmesh17.position.set(6, 0.5, -13);
+        scene.add(cylmesh17);
+
+        // right most pillar from rear view
+        const cylgeo18 = new THREE.CylinderGeometry(0.5, 0.5, 10, 32);
+        const cyl1mat18 = new THREE.MeshBasicMaterial({ map: limestone_texture });
+        const cylmesh18 = new THREE.Mesh(cylgeo18, cyl1mat18);
+        cylmesh18.position.set(8, 0.5, -13);
+        scene.add(cylmesh18);
+
+        // Side pillars
+
+        // Left #1
+
+        // Left #2
+
+        // Right #1
+
+        // Right #2
+
+    }
+
+    // Creating the roof
+    {
+
+        const limestone_texture = loader.load('../resources/limestone.png', () => {
+            renderer.render(scene, camera);
+        });
+
+        // Flipped upside down and moved up by 15 units
+
+        const cubeGeo6 = new THREE.BoxGeometry(18, 0.5, 8);
+        const cubeMat6 = new THREE.MeshPhongMaterial({ map: limestone_texture, color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 0.3});
+        const mesh6 = new THREE.Mesh(cubeGeo6, cubeMat6);
+        mesh6.position.set(0, 5.5, -10);
+        mesh6.rotation.x = Math.PI; // Flip upside down
+        scene.add(mesh6);
+
+        const cubeGeo7 = new THREE.BoxGeometry(14, 2, 6);
+        const cubeMat7 = new THREE.MeshPhongMaterial({ map: limestone_texture, color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 0.3 });
+        const mesh7 = new THREE.Mesh(cubeGeo7, cubeMat7);
+        mesh7.position.set(0, 6, -10);
+        mesh7.rotation.x = Math.PI; // Flip upside down
+        scene.add(mesh7);
+
+    }
+
+    // Creating a Sphere and adding it to the scene
+	{
+		const sphereRadius = 3;
+		const sphereWidthDivisions = 32;
+		const sphereHeightDivisions = 16;
+		const sphereGeo = new THREE.SphereGeometry( sphereRadius, sphereWidthDivisions, sphereHeightDivisions );
+		const sphereMat = new THREE.MeshPhongMaterial( { color: '#CA8' } );
+		const mesh = new THREE.Mesh( sphereGeo, sphereMat );
+		mesh.position.set( -20, sphereRadius + 2, 0 );
+		scene.add( mesh );
+	}
+
+	// Creating the windmill and adding it to the scene
+    {
         const texture = loader.load( 'https://threejs.org/manual/examples/resources/images/wall.jpg' );
         texture.colorSpace = THREE.SRGBColorSpace;
 
@@ -164,64 +349,97 @@
         } );
 
 
-        // creating an object
-        const mtlLoader = new MTLLoader();
-
         mtlLoader.load('https://threejs.org/manual/examples/resources/models/windmill/windmill.mtl', (mtl) => {
             mtl.preload();
             const objLoader = new OBJLoader();
             objLoader.setMaterials(mtl);
 
                 objLoader.load('https://threejs.org/manual/examples/resources/models/windmill/windmill.obj', (root) => {
-                    root.position.z = -5;
-                    root.rotation.y = -90;
+                    root.position.x = -16;
+                    root.position.z = -17;
+                    root.rotation.y = 75;
                     scene.add(root);
                 });
             
         });
-
-
-        // creating a texture
-
-
-
-
-        const material1 = new THREE.MeshPhongMaterial({color: 0x8844aa});
-        const material2 = new THREE.MeshPhongMaterial({color: 0xaa8844});
-
-        // Create some shapes
-        const shapes = [
-            makeInstance(cubeGeometry, coolmaterial, 0),
-            makeInstance(sphereGeometry, material1, -2),
-            makeInstance(cylinderGeometry, material2, 2),
-        ];
-
-        // To animate the cube we'll render it inside a render loop
-        function render(time) {
-
-            time *= 0.001;  // convert time to seconds
-            
-            shapes.forEach( ( shape, ndx ) => {
-
-                const speed = 1 + ndx * .1;
-                const rot = time * speed;
-                shape.rotation.x = rot;
-                shape.rotation.y = rot;
-
-            } );
-            
-            renderer.render(scene, camera);
-            
-            requestAnimationFrame(render);
-        }
-
-        // request to the browser that you want to animate something, passsing it the function to be called
-        requestAnimationFrame(render);
-
-
     }
 
-    main();
+    // Creating ambient light attatched to a gui
+	{
+
+		const color = 0xFFFFFF;
+		const intensity = 1;
+		const light = new THREE.AmbientLight( color, intensity );
+		scene.add( light );
+
+		
+		gui.addColor( new ColorGUIHelper( light, 'color' ), 'value' ).name( 'ambient color' );
+		gui.add( light, 'intensity', 0, 5, 0.01 );
+
+	}
+
+    // Creating Directional light #1
+    {
+        const d1_color = 0xFF0000;
+        const d1_intensity = 1;
+        const d1_light = new THREE.DirectionalLight(d1_color, d1_intensity);
+        d1_light.position.set(-5, 1, 0);
+        d1_light.target.position.set(0, 0, 0);
+        scene.add(d1_light);
+        scene.add(d1_light.target);
+        gui.addColor( new ColorGUIHelper(d1_light, 'color'), 'value').name('d1 color')
+    }
+
+    // Creating Directional light #2
+    {
+        const d2_color = 0x001eFF;
+        const d2_intensity = 1;
+        const d2_light = new THREE.DirectionalLight(d2_color, d2_intensity);
+        d2_light.position.set(5, 1, 0);
+        d2_light.target.position.set(0, 0, 0);
+        scene.add(d2_light);
+        scene.add(d2_light.target);
+        gui.addColor( new ColorGUIHelper(d2_light, 'color'), 'value').name('d2 color')
+    }
+
+    requestAnimationFrame( render );
+
+	function resizeRendererToDisplaySize( renderer ) {
+
+		const canvas = renderer.domElement;
+		const width = canvas.clientWidth;
+		const height = canvas.clientHeight;
+		const needResize = canvas.width !== width || canvas.height !== height;
+		if ( needResize ) {
+
+			renderer.setSize( width, height, false );
+
+		}
+
+		return needResize;
+
+	}
+
+	function render() {
+
+		if ( resizeRendererToDisplaySize( renderer ) ) {
+
+			const canvas = renderer.domElement;
+			camera.aspect = canvas.clientWidth / canvas.clientHeight;
+			camera.updateProjectionMatrix();
+
+		}
+
+		renderer.render( scene, camera );
+
+		requestAnimationFrame( render );
+
+	}
+
+}
+
+main();
+
 
 </script>
 </html>

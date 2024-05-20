@@ -328,16 +328,14 @@ function main() {
     }
 
     // Creating a Sphere and adding it to the scene
-	{
-		const sphereRadius = 3;
-		const sphereWidthDivisions = 32;
-		const sphereHeightDivisions = 16;
-		const sphereGeo = new THREE.SphereGeometry( sphereRadius, sphereWidthDivisions, sphereHeightDivisions );
-		const sphereMat = new THREE.MeshPhongMaterial( { color: '#CA8' } );
-		const mesh = new THREE.Mesh( sphereGeo, sphereMat );
-		mesh.position.set( -20, sphereRadius + 2, 0 );
-		scene.add( mesh );
-	}
+	
+        const cubeGeo7 = new THREE.BoxGeometry(2, 2, 2);
+        const cubeMat7 = new THREE.MeshPhongMaterial({ color: 0xffffff });
+        const mesh = new THREE.Mesh(cubeGeo7, cubeMat7);
+        mesh.position.set(0, 2, 0);
+        mesh.rotation.x = Math.PI; // Flip upside down
+        scene.add(mesh);
+	
 
 	// Creating the windmill and adding it to the scene
     {
@@ -420,7 +418,7 @@ function main() {
 
 	}
 
-	function render() {
+	function render(time) {
 
 		if ( resizeRendererToDisplaySize( renderer ) ) {
 
@@ -429,6 +427,13 @@ function main() {
 			camera.updateProjectionMatrix();
 
 		}
+
+        time *= 0.0001;
+
+        const speed = 1;
+        const rot = time * speed;
+        mesh.rotation.x = rot;
+        mesh.rotation.y = rot;
 
 		renderer.render( scene, camera );
 

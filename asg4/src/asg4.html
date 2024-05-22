@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Lighting</title>
+  </head>
+
+  <body onload="main()">
+    Lewis Whitehill<br><br>
+    lwhitehi@ucsc.edu <br><br>
+    Notes to Grader: <br><br>
+    Shift-Click for a special animation from the monkey.<p>
+    Use WASD to move around and use Q and E or mouse to pan the viewpoint<p>
+    Read the monkey's speech bubble and help him out!
+    <br><br>
+    <canvas id="webgl" width="400" height="400">
+    </canvas>
+    <div id="fpsDisplay" style="position: absolute; top: 600px; left: 350px; color: black;"></div>
+    <p>
+      <button type="button" id="normalOn">Normals On</button>
+      <button type="button" id="normalOff">Normals Off</button>
+    <p>
+      <button type="button" id="jumpAnimationOn">Jump Animation On</button>
+      <button type="button" id="jumpAnimationOff">Jump Animation Off</button>
+    <p>
+
+    Camera Angle <input type="range" min="-180" max="180" value="0" class="slider" id="angleSlide">
+    Body Angle <input type="range" min="-45" max="45" value="0" class="slider" id="bodySlide">
+
+    <script src="../lib/webgl-utils.js"></script>
+    <script src="../lib/webgl-debug.js"></script>
+    <script src="../lib/cuon-utils.js"></script>
+    <script src="../lib/cuon-matrix-cse160.js"></script>
+    <script src="Triangle.js"></script>
+    <script src="Cube.js"></script>
+    <script src="Camera.js"></script>
+    <script src="asg4.js"></script>
+    
+  </body>
+</html>

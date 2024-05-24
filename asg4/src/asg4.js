@@ -310,6 +310,10 @@ function actionsForHtmlUI(){
   document.getElementById('lightY').addEventListener('mousemove', function () {g_lightPos[1] = this.value/100 ; renderEverything();});
   document.getElementById('lightZ').addEventListener('mousemove', function () {g_lightPos[2] = this.value/100 ; renderEverything();});
 
+  document.getElementById('lightR').addEventListener('mousemove', function () {g_lightColor[0] = this.value/100 ; renderEverything();});
+  document.getElementById('lightG').addEventListener('mousemove', function () {g_lightColor[1] = this.value/100 ; renderEverything();});
+  document.getElementById('lightB').addEventListener('mousemove', function () {g_lightColor[2] = this.value/100 ; renderEverything();});
+
   document.getElementById('angleSlide').addEventListener('mousemove', function () { g_globalAngle = this.value; renderEverything();});
   document.getElementById('bodySlide').addEventListener('mousemove', function () { g_bodyAngle = this.value; renderEverything();});
 

@@ -32,6 +32,7 @@ uniform int u_whichTexture;
 uniform vec3 u_lightPos;
 uniform vec3 u_cameraPos;
 uniform bool u_lightOn;
+uniform bool u_spotLightOn;
 uniform vec3 u_lightColor;
 
 void main() {
@@ -84,6 +85,22 @@ void main() {
     gl_FragColor = vec4(specular + diffuse + ambient, 1.0);
   }
 
+  // Fixed Spotlight
+  vec3 spotlightDir = normalize(vec3(0.0, 0.0, -1.0));  // Fixed direction
+  float spotlightCutoff = cos(radians(30.0));  // Fixed cutoff angle (in radians)
+  float theta = dot(L, spotlightDir);
+  
+  // Spotlight intensity
+  float intensity = step(spotlightCutoff, theta);
+
+  vec3 lighting = ambient + intensity * (diffuse + specular);
+
+  if (u_spotLightOn) {
+    gl_FragColor = vec4(lighting, 1.0);
+  }
+
+  
+
 }`;
   
 // global variables
@@ -104,6 +121,7 @@ let u_GlobalRotateMatrix;
 let u_lightPos;
 let u_cameraPos;
 let u_lightOn;
+let u_spotLightOn;
 let u_NormalMatrix;
 let u_lightColor;
 
@@ -175,6 +193,13 @@ function setupGLSL(){
   u_lightOn = gl.getUniformLocation(gl.program, 'u_lightOn');
   if (!u_lightOn) {
     console.log('Failed to get the storage location of u_lightOn');
+    return;
+  }
+
+  // Get the storage location of u_spotLightOn
+  u_spotLightOn = gl.getUniformLocation(gl.program, 'u_spotLightOn');
+  if (!u_spotLightOn) {
+    console.log('Failed to get the storage location of u_spotLightOn');
     return;
   }
 
@@ -279,6 +304,7 @@ g_rightArmAnimation = false;
 g_jump = false;
 g_normalON = false;
 g_lightOn = false;
+g_spotLightOn = false;
 
 let g_lightPos = [0,1,0];
 let g_lightColor = [1,1,1];
@@ -299,8 +325,11 @@ function actionsForHtmlUI(){
   document.getElementById('normalOn').onclick = function() { g_normalON = true; renderEverything(); };
   document.getElementById('normalOff').onclick = function() { g_normalON = false; renderEverything(); };
 
-  document.getElementById('lightOn').onclick = function() { g_lightOn = true; renderEverything(); };
+  document.getElementById('lightOn').onclick = function() { g_lightOn = true; g_spotLightOn = false; renderEverything(); };
   document.getElementById('lightOff').onclick = function() { g_lightOn = false; renderEverything(); };
+
+  document.getElementById('spotlightOn').onclick = function() { g_spotLightOn = true; renderEverything(); };
+  document.getElementById('spotlightOff').onclick = function() { g_spotLightOn = false; renderEverything(); };
 
 
   document.getElementById('jumpAnimationOn').onclick = function() { g_jump = true;};
@@ -470,6 +499,9 @@ function updateAnimationAngles(){
   // cube spin animation
   g_cubeAngle = 45* Math.cos(g_seconds);
 
+  // Light back and forth
+  g_lightPos[2] =  Math.cos(g_seconds);
+
   
 }
 
@@ -513,6 +545,8 @@ function drawSurroundings(){
 
   // Pass light on bool into the shader
   gl.uniform1i(u_lightOn, g_lightOn);
+
+  gl.uniform1i(u_spotLightOn, g_spotLightOn);
 
 
   // Draw the light cube

@@ -3,6 +3,7 @@ class Cube{
             this.type = 'cube';
             this.color = [1.0, 1.0, 1.0, 1.0];
             this.matrix = new Matrix4();
+            this.normalMatrix = new Matrix4();
             this.textureNum = -2;
     }
     renderFaster(){
@@ -17,6 +18,9 @@ class Cube{
 
         // Pass the matrix to the u_ModelMatrix attribute
         gl.uniformMatrix4fv(u_ModelMatrix, false, this.matrix.elements);
+
+        // Pass normal matrix into the shader
+        gl.uniformMatrix4fv(u_NormalMatrix, false, this.normalMatrix.elements);
 
         var allverts = [];
         var allUVs = [];

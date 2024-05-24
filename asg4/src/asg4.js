@@ -11,10 +11,11 @@ var VSHADER_SOURCE =
   uniform mat4 u_GlobalRotateMatrix;
   uniform mat4 u_ViewMatrix;
   uniform mat4 u_ProjectionMatrix;
+  uniform mat4 u_NormalMatrix;
   void main() {
     gl_Position = u_ProjectionMatrix * u_ViewMatrix * u_GlobalRotateMatrix * u_ModelMatrix * a_Position;
     v_UV = a_UV;
-    v_Normal = a_Normal;
+    v_Normal = normalize(vec3(u_NormalMatrix * vec4(a_Normal,1)));
     v_VertPos = u_ModelMatrix * a_Position;
   }`;
 
@@ -30,6 +31,9 @@ uniform sampler2D u_Sampler2;
 uniform int u_whichTexture;
 uniform vec3 u_lightPos;
 uniform vec3 u_cameraPos;
+uniform bool u_lightOn;
+uniform vec3 u_lightColor;
+
 void main() {
   // Normal Color
     if(u_whichTexture == -2){
@@ -71,14 +75,14 @@ void main() {
   // eye
   vec3 E = normalize(u_cameraPos - vec3(v_VertPos));
 
-  // Specular
+  // lighting calculations
   float specular = pow( max(dot(E,R), 0.0), 10.0);
-  //float specular = vec3(0,0,0);
-
-  vec3 diffuse = vec3(gl_FragColor) * nDotL;
+  vec3 diffuse = u_lightColor * vec3(gl_FragColor) * nDotL;
   vec3 ambient = vec3(gl_FragColor) * 0.3;
 
-  gl_FragColor = vec4(specular + diffuse + ambient, 1.0);
+  if(u_lightOn){
+    gl_FragColor = vec4(specular + diffuse + ambient, 1.0);
+  }
 
 }`;
   
@@ -99,6 +103,9 @@ let u_ModelMatrix;
 let u_GlobalRotateMatrix;
 let u_lightPos;
 let u_cameraPos;
+let u_lightOn;
+let u_NormalMatrix;
+let u_lightColor;
 
 function setupWebGL(){
     // Retrieve <canvas> element
@@ -164,6 +171,27 @@ function setupGLSL(){
     return;
   }
   
+  // Get the storage location of u_lightOn
+  u_lightOn = gl.getUniformLocation(gl.program, 'u_lightOn');
+  if (!u_lightOn) {
+    console.log('Failed to get the storage location of u_lightOn');
+    return;
+  }
+
+  // Get the storage location of u_lightOn
+  u_lightColor = gl.getUniformLocation(gl.program, 'u_lightColor');
+  if (!u_lightColor) {
+    console.log('Failed to get the storage location of u_lightColor');
+    return;
+  }
+
+  // Get the storage location of uwu_NormalMatrix
+  u_NormalMatrix = gl.getUniformLocation(gl.program, 'u_NormalMatrix');
+  if (!u_NormalMatrix) {
+    console.log('Failed to get the storage location of u_NormalMatrix');
+    return;
+  }
+
   // Get the storage location of u_ProjectionMatrix
   u_ProjectionMatrix = gl.getUniformLocation(gl.program, 'u_ProjectionMatrix');
   if (!u_ProjectionMatrix) {
@@ -245,11 +273,15 @@ g_rFoot = 0;
 
 g_b1RotateAngle = 0;
 
+g_cubeAngle = 0;
+
 g_rightArmAnimation = false;
 g_jump = false;
 g_normalON = false;
+g_lightOn = false;
 
-let g_lightPos = [0,0.1,0];
+let g_lightPos = [0,1,0];
+let g_lightColor = [1,0,0];
 
 function actionsForHtmlUI(){
 
@@ -263,8 +295,12 @@ function actionsForHtmlUI(){
 
   // Button Events
 
-  document.getElementById('normalOn').onclick = function() { g_normalON = true; renderEverything(); console.log(a_Normal);};
-  document.getElementById('normalOff').onclick = function() { g_normalON = false; renderEverything(); console.log(a_Normal);};
+  document.getElementById('normalOn').onclick = function() { g_normalON = true; renderEverything(); };
+  document.getElementById('normalOff').onclick = function() { g_normalON = false; renderEverything(); };
+
+  document.getElementById('lightOn').onclick = function() { g_lightOn = true; renderEverything(); };
+  document.getElementById('lightOff').onclick = function() { g_lightOn = false; renderEverything(); };
+
 
   document.getElementById('jumpAnimationOn').onclick = function() { g_jump = true;};
   document.getElementById('jumpAnimationOff').onclick = function() { g_jump = false;};
@@ -426,8 +462,8 @@ function updateAnimationAngles(){
 
   }
 
-  // Light animation
-  //g_lightPos[0] = Math.cos(g_seconds);
+  // cube spin animation
+  g_cubeAngle = 45* Math.cos(g_seconds);
 
   
 }
@@ -470,6 +506,10 @@ function drawSurroundings(){
   // Pass camera into the shader
   gl.uniform3f(u_cameraPos, g_Camera.eye.elements[0], g_Camera.eye.elements[1], g_Camera.eye.elements[2]);
 
+  // Pass light on bool into the shader
+  gl.uniform1i(u_lightOn, g_lightOn);
+
+
   // Draw the light cube
   var light = new Cube();
   light.color = [2,2,0,1];
@@ -485,12 +525,16 @@ function drawShapes(){
   cube1.color = [1, 0, 1, 1];
   cube1.matrix.translate(1, .5, 0);
   cube1.textureNum = -3;
+  cube1.matrix.rotate(g_cubeAngle, 0, 0, 1);
+  cube1.normalMatrix.setInverseOf(cube1.matrix).transpose();
   cube1.renderFaster();
+
 
   // Draw a sphere
   var sphere1 = new Sphere();
+  sphere1.color = [1,0,0,1];
   sphere1.matrix.translate(-2, 1, 1);
-  sphere1.textureNum = -3;
+  sphere1.textureNum = -2;
   sphere1.render();
 }
 
@@ -749,6 +793,9 @@ function renderEverything(){
   var globalRotMat = new Matrix4().rotate(g_globalAngle, 0, 1, 0);
   gl.uniformMatrix4fv(u_GlobalRotateMatrix, false, globalRotMat.elements);
 
+  // pass the color into the frag shader
+  gl.uniform3f(u_lightColor, g_lightColor[0], g_lightColor[1], g_lightColor[2]);
+
   // clear canvas
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
   gl.clear(gl.COLOR_BUFFER_BIT);
@@ -761,9 +808,6 @@ function renderEverything(){
 
   // draw the monkey
   drawMonkey();
-
-  return printer;
-
  
 } // renderEverything
 

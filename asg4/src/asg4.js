@@ -524,7 +524,8 @@ function drawSurroundings(){
   floor.matrix.translate(0, -1, 0);
   floor.matrix.scale(25, 0, 25);
   floor.matrix.translate(-0.5, 5, -0.5);
-  floor.textureNum = -2;
+  if(g_normalON == true){floor.textureNum = -3;}
+  else{floor.textureNum = -4;}
   floor.renderFaster();
 
   // Draw the sky
@@ -573,7 +574,7 @@ function drawShapes(){
   var sphere1 = new Sphere();
   sphere1.color = [1,0,0,1];
   sphere1.matrix.translate(-2, 1, 1);
-  sphere1.textureNum = -2;
+  sphere1.textureNum = -3;
   sphere1.render();
 }
 

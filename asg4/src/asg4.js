@@ -281,7 +281,7 @@ g_normalON = false;
 g_lightOn = false;
 
 let g_lightPos = [0,1,0];
-let g_lightColor = [1,0,0];
+let g_lightColor = [1,1,1];
 
 function actionsForHtmlUI(){
 

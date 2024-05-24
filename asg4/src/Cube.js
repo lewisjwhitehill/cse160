@@ -34,7 +34,7 @@ class Cube{
         // Back
         allverts = allverts.concat( [0,0,1, 1,1,1, 1,0,1]);
         allUVs = allUVs.concat([1,0, 0,1, 0,0]);
-        allNormals =  allNormals.concat([0,0,-1, 0,0,-1, 0,0,-1]);
+        allNormals =  allNormals.concat([0,0,1, 0,0,1, 0,0,1]);
 
         allverts = allverts.concat([ 0,0,1, 1,1,1, 0,1,1]);
         allUVs = allUVs.concat( [1,0, 0,1, 1,1]);

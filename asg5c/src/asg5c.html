@@ -1,0 +1,618 @@
+<!-- Licensed under a BSD license. See license.html for license -->
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Three.js - Fundamentals with animation</title>
+  </head>
+  <body>
+    Lewis Whitehill<br><br>
+    lwhitehi@ucsc.edu <br><br>
+    Notes to Grader: N/A
+    <canvas id="c"></canvas>
+  </body>
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://threejs.org/build/three.module.js",
+    "three/addons/": "https://threejs.org/examples/jsm/"
+  }
+}
+</script>
+
+<style>
+    html, body {
+  margin: 0;
+  height: 100%;
+    }
+    #c {
+    width: 100%;
+    height: 100%;
+    display: block;
+    }
+</style>
+
+<script type="module">
+
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
+import {OBJLoader} from 'three/addons/loaders/OBJLoader.js';
+import {MTLLoader} from 'three/addons/loaders/MTLLoader.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+
+function main() {
+
+    class ColorGUIHelper {
+
+        constructor( object, prop ) {
+
+            this.object = object;
+            this.prop = prop;
+
+        }
+        get value() {
+
+            return `#${this.object[ this.prop ].getHexString()}`;
+
+        }
+        set value( hexString ) {
+
+            this.object[ this.prop ].set( hexString );
+
+        }
+
+    }
+
+    // Set up canvas, renderer, gui, and loader
+	const canvas = document.querySelector( '#c' );
+	const renderer = new THREE.WebGLRenderer( { antialias: true, canvas } );
+    const loader = new THREE.TextureLoader();
+    const mtlLoader = new MTLLoader();
+    const gltfLoader = new GLTFLoader();
+    const gui = new GUI();
+
+    // Set up values to create the camera
+	const fov = 45;
+	const aspect = 2; // the canvas default
+	const near = 0.1;
+	const far = 100;
+	const camera = new THREE.PerspectiveCamera( fov, aspect, near, far );
+	camera.position.set( 0, 10, 20 );
+
+    // Set up orbit controls
+	const controls = new OrbitControls( camera, canvas );
+	controls.target.set( 0, 5, 0 );
+	controls.update();
+
+    // Set up the scene!
+	const scene = new THREE.Scene();
+	scene.background = new THREE.Color( 'black' );
+
+    // Creating a plane and adding it to the scene
+	{
+
+		const planeSize = 40;
+		const texture = loader.load( '../resources/pavement.jpeg' );
+		texture.wrapS = THREE.RepeatWrapping;
+		texture.wrapT = THREE.RepeatWrapping;
+		texture.magFilter = THREE.NearestFilter;
+		texture.colorSpace = THREE.SRGBColorSpace;
+		const repeats = planeSize / 2;
+		texture.repeat.set( repeats, repeats );
+
+		const planeGeo = new THREE.PlaneGeometry( planeSize, planeSize );
+		const planeMat = new THREE.MeshPhongMaterial( {
+			map: texture,
+			side: THREE.DoubleSide,
+		} );
+		const mesh = new THREE.Mesh( planeGeo, planeMat );
+		mesh.rotation.x = Math.PI * - .5;
+		scene.add( mesh );
+
+	}
+
+    // Creating a skybox and adding it to the scene
+    {
+
+        const cube_loader = new THREE.CubeTextureLoader();
+        const skybox_texture = cube_loader.load( [
+			'../resources/px.png',
+			'../resources/nx.png',
+            '../resources/py.png',
+            '../resources/ny.png',
+			'../resources/pz.png',
+			'../resources/nz.png',
+		] );
+        scene.background = skybox_texture;
+    }
+
+    {// Creating the lincoln memorial exterior
+    
+        // Creating the base 
+        {
+
+            const limestone_texture = loader.load('../resources/limestone.png', () => {
+                renderer.render(scene, camera);
+            });
+
+            const grass_texture = loader.load('../resources/grass.jpeg', () => {
+                renderer.render(scene, camera);
+            });
+
+            const cubeGeo0 = new THREE.BoxGeometry( 25, 0.4, 15 );
+            const cubeMat0 = new THREE.MeshPhongMaterial( {map: grass_texture});
+            const mesh0 = new THREE.Mesh( cubeGeo0, cubeMat0 );
+            mesh0.position.set(0, 0, -10 );
+            scene.add( mesh0 );
+
+            const cubeGeo1 = new THREE.BoxGeometry( 20, 0.5, 10 );
+            const cubeMat1 = new THREE.MeshPhongMaterial( {map: limestone_texture, color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 0.3});
+            const mesh1 = new THREE.Mesh( cubeGeo1, cubeMat1 );
+            mesh1.position.set(0, 0, -10 );
+            scene.add( mesh1 );
+
+            const cubeGeo2 = new THREE.BoxGeometry( 19, 0.5, 9 );
+            const cubeMat2 = new THREE.MeshPhongMaterial( { map: limestone_texture, color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 0.3 } );
+            const mesh2 = new THREE.Mesh( cubeGeo2, cubeMat2 );
+            mesh2.position.set(0, 0.2, -10 );
+            scene.add( mesh2 );
+
+            const cubeGeo3 = new THREE.BoxGeometry( 18, 0.5, 8 );
+            const cubeMat3 = new THREE.MeshPhongMaterial( { map: limestone_texture, color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 0.3 } );
+            const mesh3 = new THREE.Mesh( cubeGeo3, cubeMat3 );
+            mesh3.position.set(0, 0.6, -10 );
+            scene.add( mesh3 );
+
+        }
+
+        // Creating the pillars
+        {
+
+            const limestone_texture = loader.load('../resources/pillartexture.jpeg', () => {
+                renderer.render(scene, camera);
+            });
+
+            // left most pillar from front view
+            const cylgeo1 = new THREE.CylinderGeometry(0.5, 0.5, 10, 32);
+            const cyl1mat1 = new THREE.MeshBasicMaterial({ map: limestone_texture });
+            const cylmesh1 = new THREE.Mesh(cylgeo1, cyl1mat1);
+            cylmesh1.position.set(-8, 0.5, -7);
+            scene.add(cylmesh1);
+
+            // left side pillar #1
+            const cylgeo4 = new THREE.CylinderGeometry(0.5, 0.5, 10, 32);
+            const cyl1mat4 = new THREE.MeshBasicMaterial({ map: limestone_texture });
+            const cylmesh4 = new THREE.Mesh(cylgeo4, cyl1mat4);
+            cylmesh4.position.set(-6, 0.5, -7);
+            scene.add(cylmesh4);
+
+            // left side pillar #2
+            const cylgeo5 = new THREE.CylinderGeometry(0.5, 0.5, 10, 32);
+            const cyl1mat5 = new THREE.MeshBasicMaterial({ map: limestone_texture });
+            const cylmesh5 = new THREE.Mesh(cylgeo5, cyl1mat5);
+            cylmesh5.position.set(-4, 0.5, -7);
+            scene.add(cylmesh5);
+
+            // left side pillar #3
+            const cylgeo6 = new THREE.CylinderGeometry(0.5, 0.5, 10, 32);
+            const cyl1mat6 = new THREE.MeshBasicMaterial({ map: limestone_texture });
+            const cylmesh6 = new THREE.Mesh(cylgeo6, cyl1mat6);
+            cylmesh6.position.set(-2, 0.5, -7);
+            scene.add(cylmesh6);
+
+            // center pillar from front view
+            const cylgeo3 = new THREE.CylinderGeometry(0.5, 0.5, 10, 32);
+            const cyl1mat3 = new THREE.MeshBasicMaterial({ map: limestone_texture });
+            const cylmesh3 = new THREE.Mesh(cylgeo3, cyl1mat3);
+            cylmesh3.position.set(0, 0.5, -7);
+            scene.add(cylmesh3);
+
+            // right side pillar #1
+            const cylgeo7 = new THREE.CylinderGeometry(0.5, 0.5, 10, 32);
+            const cyl1mat7 = new THREE.MeshBasicMaterial({ map: limestone_texture });
+            const cylmesh7 = new THREE.Mesh(cylgeo7, cyl1mat7);
+            cylmesh7.position.set(2, 0.5, -7);
+            scene.add(cylmesh7);
+
+            // left side pillar #2
+            const cylgeo8 = new THREE.CylinderGeometry(0.5, 0.5, 10, 32);
+            const cyl1mat8 = new THREE.MeshBasicMaterial({ map: limestone_texture });
+            const cylmesh8 = new THREE.Mesh(cylgeo8, cyl1mat8);
+            cylmesh8.position.set(4, 0.5, -7);
+            scene.add(cylmesh8);
+
+            // left side pillar #3
+            const cylgeo9 = new THREE.CylinderGeometry(0.5, 0.5, 10, 32);
+            const cyl1mat9 = new THREE.MeshBasicMaterial({ map: limestone_texture });
+            const cylmesh9 = new THREE.Mesh(cylgeo9, cyl1mat9);
+            cylmesh9.position.set(6, 0.5, -7);
+            scene.add(cylmesh9);
+
+            // right most pillar from front view
+            const cylgeo2 = new THREE.CylinderGeometry(0.5, 0.5, 10, 32);
+            const cyl1mat2 = new THREE.MeshBasicMaterial({ map: limestone_texture });
+            const cylmesh2 = new THREE.Mesh(cylgeo2, cyl1mat2);
+            cylmesh2.position.set(8, 0.5, -7);
+            scene.add(cylmesh2);
+
+            // Back pillars /////////////////////////////////////////////////
+        
+            // left most pillar from rear view
+            const cylgeo10 = new THREE.CylinderGeometry(0.5, 0.5, 10, 32);
+            const cyl1mat10 = new THREE.MeshBasicMaterial({ map: limestone_texture });
+            const cylmesh10 = new THREE.Mesh(cylgeo10, cyl1mat10);
+            cylmesh10.position.set(-8, 0.5, -13);
+            scene.add(cylmesh10);
+
+            // left side pillar #1 from rear view
+            const cylgeo11 = new THREE.CylinderGeometry(0.5, 0.5, 10, 32);
+            const cyl1mat11 = new THREE.MeshBasicMaterial({ map: limestone_texture });
+            const cylmesh11 = new THREE.Mesh(cylgeo11, cyl1mat11);
+            cylmesh11.position.set(-6, 0.5, -13);
+            scene.add(cylmesh11);
+
+            // left side pillar #2 from rear view
+            const cylgeo12 = new THREE.CylinderGeometry(0.5, 0.5, 10, 32);
+            const cyl1mat12 = new THREE.MeshBasicMaterial({ map: limestone_texture });
+            const cylmesh12 = new THREE.Mesh(cylgeo12, cyl1mat12);
+            cylmesh12.position.set(-4, 0.5, -13);
+            scene.add(cylmesh12);
+
+            // left side pillar #3 from rear view
+            const cylgeo13 = new THREE.CylinderGeometry(0.5, 0.5, 10, 32);
+            const cyl1mat13 = new THREE.MeshBasicMaterial({ map: limestone_texture });
+            const cylmesh13 = new THREE.Mesh(cylgeo13, cyl1mat13);
+            cylmesh13.position.set(-2, 0.5, -13);
+            scene.add(cylmesh13);
+
+            // center pillar from rear view
+            const cylgeo14 = new THREE.CylinderGeometry(0.5, 0.5, 10, 32);
+            const cyl1mat14 = new THREE.MeshBasicMaterial({ map: limestone_texture });
+            const cylmesh14 = new THREE.Mesh(cylgeo14, cyl1mat14);
+            cylmesh14.position.set(0, 0.5, -13);
+            scene.add(cylmesh14);
+
+            // right side pillar #1 from rear view
+            const cylgeo15 = new THREE.CylinderGeometry(0.5, 0.5, 10, 32);
+            const cyl1mat15 = new THREE.MeshBasicMaterial({ map: limestone_texture });
+            const cylmesh15 = new THREE.Mesh(cylgeo15, cyl1mat15);
+            cylmesh15.position.set(2, 0.5, -13);
+            scene.add(cylmesh15);
+
+            // right side pillar #2 from rear view
+            const cylgeo16 = new THREE.CylinderGeometry(0.5, 0.5, 10, 32);
+            const cyl1mat16 = new THREE.MeshBasicMaterial({ map: limestone_texture });
+            const cylmesh16 = new THREE.Mesh(cylgeo16, cyl1mat16);
+            cylmesh16.position.set(4, 0.5, -13);
+            scene.add(cylmesh16);
+
+            // right side pillar #3 from rear view
+            const cylgeo17 = new THREE.CylinderGeometry(0.5, 0.5, 10, 32);
+            const cyl1mat17 = new THREE.MeshBasicMaterial({ map: limestone_texture });
+            const cylmesh17 = new THREE.Mesh(cylgeo17, cyl1mat17);
+            cylmesh17.position.set(6, 0.5, -13);
+            scene.add(cylmesh17);
+
+            // right most pillar from rear view
+            const cylgeo18 = new THREE.CylinderGeometry(0.5, 0.5, 10, 32);
+            const cyl1mat18 = new THREE.MeshBasicMaterial({ map: limestone_texture });
+            const cylmesh18 = new THREE.Mesh(cylgeo18, cyl1mat18);
+            cylmesh18.position.set(8, 0.5, -13);
+            scene.add(cylmesh18);
+
+            // Side pillars
+
+            // Left #1
+
+            // Left #2
+
+            // Right #1
+
+            // Right #2
+
+        }
+
+        // Creating the roof
+        {
+
+            const limestone_texture = loader.load('../resources/limestone.png', () => {
+                renderer.render(scene, camera);
+            });
+
+            // Flipped upside down and moved up by 15 units
+
+            const cubeGeo6 = new THREE.BoxGeometry(18, 0.5, 8);
+            const cubeMat6 = new THREE.MeshPhongMaterial({ map: limestone_texture, color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 0.3});
+            const mesh6 = new THREE.Mesh(cubeGeo6, cubeMat6);
+            mesh6.position.set(0, 5.5, -10);
+            mesh6.rotation.x = Math.PI; // Flip upside down
+            scene.add(mesh6);
+
+            const cubeGeo7 = new THREE.BoxGeometry(14, 2, 6);
+            const cubeMat7 = new THREE.MeshPhongMaterial({ map: limestone_texture, color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 0.3 });
+            const mesh7 = new THREE.Mesh(cubeGeo7, cubeMat7);
+            mesh7.position.set(0, 6, -10);
+            mesh7.rotation.x = Math.PI; // Flip upside down
+            scene.add(mesh7);
+
+        }
+
+    } // Lincon memorial end
+
+    // Rotating Cube
+	
+        const cubeGeo7 = new THREE.BoxGeometry(2, 2, 2);
+        const cubeMat7 = new THREE.MeshPhongMaterial({ color: 0xffffff });
+        const mesh = new THREE.Mesh(cubeGeo7, cubeMat7);
+        mesh.position.set(0, 2, 0);
+        mesh.rotation.x = Math.PI; // Flip upside down
+        scene.add(mesh);
+	
+
+	// Custom 3D models
+    {
+        const texture = loader.load( 'https://threejs.org/manual/examples/resources/images/wall.jpg' );
+        texture.colorSpace = THREE.SRGBColorSpace;
+
+        const coolmaterial = new THREE.MeshBasicMaterial( {
+            map: texture
+        } );
+
+        // windmill
+        mtlLoader.load('https://threejs.org/manual/examples/resources/models/windmill/windmill.mtl', (mtl) => {
+            mtl.preload();
+            const objLoader = new OBJLoader();
+            objLoader.setMaterials(mtl);
+
+                objLoader.load('https://threejs.org/manual/examples/resources/models/windmill/windmill.obj', (root) => {
+                    root.position.x = -16;
+                    root.position.z = -17;
+                    root.rotation.y = 75;
+                    scene.add(root);
+                });
+            
+        });
+
+        // vines
+        mtlLoader.load('../resources/Vines/PUSHILIN_ivy.mtl', (mtl) => {
+            mtl.preload();
+            const objLoader = new OBJLoader();
+            objLoader.setMaterials(mtl);
+
+                objLoader.load('../resources/Vines/PUSHILIN_ivy.obj', (root) => {
+                    root.position.x = 5;
+                    root.position.z = -6;
+                    root.position.y = 5;
+                    scene.add(root);
+                });
+
+                objLoader.load('../resources/Vines/PUSHILIN_ivy.obj', (root) => {
+                    root.position.x = -5;
+                    root.position.z = -6;
+                    root.position.y = 5;
+                    scene.add(root);
+                });
+
+                objLoader.load('../resources/Vines/PUSHILIN_ivy.obj', (root) => {
+                    root.position.x = -6;
+                    root.position.z = -6;
+                    root.position.y = 4.5;
+                    scene.add(root);
+                });
+                
+                objLoader.load('../resources/Vines/PUSHILIN_ivy.obj', (root) => {
+                    root.position.x = -6.5;
+                    root.position.z = -6;
+                    root.position.y = 5;
+                    scene.add(root);
+                });
+            
+            
+        });
+
+        // boat
+        mtlLoader.load('../resources/Sailboat/SailBoat_1368.mtl', (mtl) => {
+            mtl.preload();
+            const objLoader = new OBJLoader();
+            objLoader.setMaterials(mtl);
+
+                objLoader.load('../resources/Sailboat/SailBoat_1368.obj', (root) => {
+                    
+                    root.position.x = 16.5;
+                    root.position.z = -12;
+                    root.scale.set(0.05, 0.05, 0.05); 
+                    scene.add(root);
+                });
+            
+        });
+
+        // dock
+        gltfLoader.load('../resources/Dock Wide.glb', (gltf) => {
+            const root = gltf.scene;
+            root.position.x = 18.5;
+            root.position.z = -4;
+            root.position.y = 0;
+            root.scale.set(0.20, 0.20, 0.20); 
+            scene.add(root);
+        });
+
+        // shark fin
+        gltfLoader.load('../resources/Shark fin.glb', (gltf) => {
+            const root = gltf.scene;
+            root.position.x = 16.5;
+            root.position.z = -15;
+            root.position.y = 0;
+            root.rotation.y = 90 * (180/Math.PI);
+         
+            scene.add(root);
+        });
+    }
+
+    // Creating ambient light attatched to a gui
+	{
+
+		const color = 0xFFFFFF;
+		const intensity = 1;
+		const light = new THREE.AmbientLight( color, intensity );
+		scene.add( light );
+
+		
+		gui.addColor( new ColorGUIHelper( light, 'color' ), 'value' ).name( 'ambient color' );
+		gui.add( light, 'intensity', 0, 5, 0.01 );
+
+	}
+
+    // Creating Directional light #1
+    {
+        const d1_color = 0xFF0000;
+        const d1_intensity = 1;
+        const d1_light = new THREE.DirectionalLight(d1_color, d1_intensity);
+        d1_light.position.set(-5, 1, 0);
+        d1_light.target.position.set(0, 0, 0);
+        scene.add(d1_light);
+        scene.add(d1_light.target);
+        gui.addColor( new ColorGUIHelper(d1_light, 'color'), 'value').name('d1 color')
+    }
+
+    // Creating Directional light #2
+    {
+        const d2_color = 0x001eFF;
+        const d2_intensity = 1;
+        const d2_light = new THREE.DirectionalLight(d2_color, d2_intensity);
+        d2_light.position.set(5, 1, 0);
+        d2_light.target.position.set(0, 0, 0);
+        scene.add(d2_light);
+        scene.add(d2_light.target);
+        gui.addColor( new ColorGUIHelper(d2_light, 'color'), 'value').name('d2 color')
+    }
+
+    // Creating a mini city
+    {
+
+        
+        // Function to create a building
+        function createBuilding(width, height, depth, color) {
+            const geometry = new THREE.BoxGeometry(width, height, depth);
+            const material = new THREE.MeshBasicMaterial({ color });
+            const building = new THREE.Mesh(geometry, material);
+            return building;
+        }
+
+        // Function to create a tree
+        function createTree() {
+            const trunkGeometry = new THREE.CylinderGeometry(0.2, 0.2, 1);
+            const trunkMaterial = new THREE.MeshBasicMaterial({ color: 0x8B4513 });
+            const trunk = new THREE.Mesh(trunkGeometry, trunkMaterial);
+            
+            const foliageGeometry = new THREE.CylinderGeometry(0.5, 0.5, 1);
+            const foliageMaterial = new THREE.MeshBasicMaterial({ color: 0x228B22 });
+            const foliage = new THREE.Mesh(foliageGeometry, foliageMaterial);
+            
+            foliage.position.y = 1;
+            
+            const tree = new THREE.Group();
+            tree.add(trunk);
+            tree.add(foliage);
+            
+            return tree;
+        }
+
+        // Create and add buildings
+        for (let i = -8; i <= 8; i++) {
+            for (let j = 0; j <= 8; j++) {
+                if (Math.random() > 0.7) {
+                    const building = createBuilding(1, Math.random() * 5 + 1, 1, Math.random() * 0xffffff);
+                    building.position.set(i * 2, building.geometry.parameters.height / 2, j * 2);
+                    scene.add(building);
+                } 
+                else if (Math.random() > 0.5) {
+                    const tree = createTree();
+                    tree.position.set(i * 2, 0.5, j * 2);
+                    scene.add(tree);
+                }
+            }
+        }
+
+        const water_texture = loader.load('../resources/waterrr.jpeg', () => {
+                renderer.render(scene, camera);
+        });
+
+        // Water 
+        const waterGeo = new THREE.BoxGeometry(7.5, 0.3, 15);
+        const waterMat = new THREE.MeshPhongMaterial({ map : water_texture});
+        const water = new THREE.Mesh(waterGeo, waterMat);
+        water.position.set(16.5, 0, -12);
+        scene.add(water);
+}
+
+    // Create a freeway going around the city
+    {
+        const freeway_geo= new THREE.BoxGeometry( 20, 0.5, 2 );
+		const freeway_mat = new THREE.MeshPhongMaterial( {color: 0x000000});
+
+		const freeway1 = new THREE.Mesh( freeway_geo, freeway_mat );
+		freeway1.position.set(-18.5, 0.5, 8 );
+        freeway1.rotation.y = 90 * (Math.PI / 180);
+		scene.add( freeway1 );
+
+        const freeway2 = new THREE.Mesh( freeway_geo, freeway_mat );
+		freeway2.position.set(18.5, 0.5, 8 );
+        freeway2.rotation.y = 90 * (Math.PI / 180);
+		scene.add( freeway2 );
+
+        const freeway_geo2 = new THREE.BoxGeometry( 39, 0.5, 2 );
+        const freeway3 = new THREE.Mesh( freeway_geo2, freeway_mat );
+		freeway3.position.set(0, 0.5, 19 );
+		scene.add( freeway3 );
+    }
+
+    requestAnimationFrame( render );
+
+	function resizeRendererToDisplaySize( renderer ) {
+
+		const canvas = renderer.domElement;
+		const width = canvas.clientWidth;
+		const height = canvas.clientHeight;
+		const needResize = canvas.width !== width || canvas.height !== height;
+		if ( needResize ) {
+
+			renderer.setSize( width, height, false );
+
+		}
+
+		return needResize;
+
+	}
+
+	function render(time) {
+
+		if ( resizeRendererToDisplaySize( renderer ) ) {
+
+			const canvas = renderer.domElement;
+			camera.aspect = canvas.clientWidth / canvas.clientHeight;
+			camera.updateProjectionMatrix();
+
+		}
+
+        time *= 0.0001;
+
+        const speed = 1;
+        const rot = time * speed;
+        mesh.rotation.x = rot;
+        mesh.rotation.y = rot;
+
+		renderer.render( scene, camera );
+
+		requestAnimationFrame( render );
+
+	}
+
+}
+
+main();
+
+
+</script>
+</html>

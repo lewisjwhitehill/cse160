@@ -351,6 +351,7 @@ function main() {
         scene.add(mesh);
 	
 
+    let sharkfin;
 	// Custom 3D models
     {
         const texture = loader.load( 'https://threejs.org/manual/examples/resources/images/wall.jpg' );
@@ -440,14 +441,14 @@ function main() {
 
         // shark fin
         gltfLoader.load('../resources/Shark fin.glb', (gltf) => {
-            const root = gltf.scene;
-            root.position.x = 16.5;
-            root.position.z = -15;
-            root.position.y = 0;
-            root.rotation.y = 90 * (180/Math.PI);
-         
-            scene.add(root);
+                sharkfin = gltf.scene;
+                sharkfin.position.x = 16.5;
+                sharkfin.position.z = -15;
+                sharkfin.position.y = 0;
+                sharkfin.rotation.y = 90 * (180/Math.PI);
+                scene.add(sharkfin);
         });
+        
     }
 
     // Creating ambient light attatched to a gui
@@ -586,6 +587,12 @@ function main() {
 
 	}
 
+
+    // Define variables for the circular motion
+    const radius = 3; // Adjust this value to change the radius of the circle
+    let angle = 0; // Initial angle
+
+
 	function render(time) {
 
 		if ( resizeRendererToDisplaySize( renderer ) ) {
@@ -595,6 +602,29 @@ function main() {
 			camera.updateProjectionMatrix();
 
 		}
+
+        if (sharkfin) { // Check if sharkfin is defined
+            // Calculate the new position of the shark fin along a circular path
+            const x = 16.5 + radius * Math.cos(angle);
+            const z = -12 + radius * Math.sin(angle);
+
+            // Calculate the direction vector of the movement
+            const dx = -radius * Math.sin(angle);
+            const dz = radius * Math.cos(angle);
+
+            // Set the position of the shark fin
+            sharkfin.position.x = x;
+            sharkfin.position.z = z;
+
+            // Calculate the new rotation of the shark fin based on the direction vector
+            const direction = new THREE.Vector3(dx, 0, dz).normalize();
+            sharkfin.lookAt(sharkfin.position.x + direction.x, sharkfin.position.y + direction.y, sharkfin.position.z + direction.z);
+
+            angle += 0.01; // Adjust the speed of rotation as needed
+        }
+
+
+
 
         time *= 0.0001;
 

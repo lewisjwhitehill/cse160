@@ -9,7 +9,7 @@
   <body>
     Lewis Whitehill<br><br>
     lwhitehi@ucsc.edu <br><br>
-    Notes to Grader: N/A
+    Notes to Grader: Chat GPT helped me with the logic of the shark fin circling the boat and the city generation
     <canvas id="c"></canvas>
   </body>
 <script type="importmap">
@@ -343,15 +343,18 @@ function main() {
 
     // Rotating Cube
 	
-        const cubeGeo7 = new THREE.BoxGeometry(2, 2, 2);
-        const cubeMat7 = new THREE.MeshPhongMaterial({ color: 0xffffff });
-        const mesh = new THREE.Mesh(cubeGeo7, cubeMat7);
-        mesh.position.set(0, 2, 0);
-        mesh.rotation.x = Math.PI; // Flip upside down
-        scene.add(mesh);
+        // const cubeGeo7 = new THREE.BoxGeometry(2, 2, 2);
+        // const cubeMat7 = new THREE.MeshPhongMaterial({ color: 0xffffff });
+        // const mesh = new THREE.Mesh(cubeGeo7, cubeMat7);
+        // mesh.position.set(0, 2, 0);
+        // mesh.rotation.x = Math.PI; // Flip upside down
+        // scene.add(mesh);
 	
 
     let sharkfin;
+    let car;
+    let sun;
+
 	// Custom 3D models
     {
         const texture = loader.load( 'https://threejs.org/manual/examples/resources/images/wall.jpg' );
@@ -362,19 +365,19 @@ function main() {
         } );
 
         // windmill
-        mtlLoader.load('https://threejs.org/manual/examples/resources/models/windmill/windmill.mtl', (mtl) => {
-            mtl.preload();
-            const objLoader = new OBJLoader();
-            objLoader.setMaterials(mtl);
+        // mtlLoader.load('https://threejs.org/manual/examples/resources/models/windmill/windmill.mtl', (mtl) => {
+        //     mtl.preload();
+        //     const objLoader = new OBJLoader();
+        //     objLoader.setMaterials(mtl);
 
-                objLoader.load('https://threejs.org/manual/examples/resources/models/windmill/windmill.obj', (root) => {
-                    root.position.x = -16;
-                    root.position.z = -17;
-                    root.rotation.y = 75;
-                    scene.add(root);
-                });
+        //         objLoader.load('https://threejs.org/manual/examples/resources/models/windmill/windmill.obj', (root) => {
+        //             root.position.x = -16;
+        //             root.position.z = -17;
+        //             root.rotation.y = 75;
+        //             scene.add(root);
+        //         });
             
-        });
+        // });
 
         // vines
         mtlLoader.load('../resources/Vines/PUSHILIN_ivy.mtl', (mtl) => {
@@ -449,6 +452,54 @@ function main() {
                 scene.add(sharkfin);
         });
         
+        // car
+        gltfLoader.load('../resources/Dodge Charger.glb', (gltf) => {
+                car = gltf.scene;
+                car.position.x = -18.5;
+                car.position.y = 0.8;
+                car.position.z = -20;
+                car.scale.set(0.7, 0.7, 0.7); 
+                scene.add(car);
+        });
+    
+        // sun
+        gltfLoader.load('../resources/sun.glb', (gltf) => {
+                sun = gltf.scene;
+                sun.rotation.y = 90 * Math.PI/180;
+                sun.position.y = 10;
+                sun.position.z =  -20;
+                sun.scale.set(0.05, 0.05, 0.05); 
+                scene.add(sun);
+        });
+        
+        // trex
+        gltfLoader.load('../resources/T-Rex.glb', (gltf) => {
+            const root = gltf.scene;
+            root.position.x = -18;
+            root.position.z = -10;
+            root.position.y = 6;
+            root.rotation.y = (90 * Math.PI/180);
+            root.scale.set(0.05, 0.05, 0.05); 
+            scene.add(root);
+        });
+        
+        // madara
+        mtlLoader.load('../resources/Madara Uchiha/obj/Madara_Uchiha.mtl', (mtl) => {
+            mtl.preload();
+            const objLoader = new OBJLoader();
+            objLoader.setMaterials(mtl);
+
+                objLoader.load('../resources/Madara Uchiha/obj/Madara_Uchiha.obj', (root) => {
+                    
+                     root.position.x = -3;
+                     root.position.z = -10;
+                     root.position.y = 7;
+                     root.rotation.y = 270 * Math.PI/180;
+    
+                    scene.add(root);
+                });
+            
+        });
     }
 
     // Creating ambient light attatched to a gui
@@ -487,6 +538,18 @@ function main() {
         scene.add(d2_light);
         scene.add(d2_light.target);
         gui.addColor( new ColorGUIHelper(d2_light, 'color'), 'value').name('d2 color')
+    }
+
+ 
+    // Creating Direcitonal light #3 that will be inside the sun
+    {
+        const sun_color = 0xFF4500;
+        const sun_intensity = 1;
+        const sun_light = new THREE.DirectionalLight(sun_color, sun_intensity);
+        sun_light.position.set(0, 10, -30);
+        sun_light.target.position.set(0, 0, 0);
+        scene.add(sun_light);
+        scene.add(sun_light.target);
     }
 
     // Creating a mini city
@@ -592,8 +655,14 @@ function main() {
     const radius = 3; // Adjust this value to change the radius of the circle
     let angle = 0; // Initial angle
 
+    let carPosX = 0;
+    let carDirection = 1;
 
 	function render(time) {
+
+        time *= 0.0001;
+        const speed = 5;
+        const rot = time * speed;
 
 		if ( resizeRendererToDisplaySize( renderer ) ) {
 
@@ -602,6 +671,8 @@ function main() {
 			camera.updateProjectionMatrix();
 
 		}
+
+        // Chat GPT helped me with this logic for the sharkfin and the car
 
         if (sharkfin) { // Check if sharkfin is defined
             // Calculate the new position of the shark fin along a circular path
@@ -620,24 +691,32 @@ function main() {
             const direction = new THREE.Vector3(dx, 0, dz).normalize();
             sharkfin.lookAt(sharkfin.position.x + direction.x, sharkfin.position.y + direction.y, sharkfin.position.z + direction.z);
 
-            angle += 0.01; // Adjust the speed of rotation as needed
+            angle += 0.01; // Adjust the speed of rotation 
         }
 
+        if (car) { // Check if car is defined
+            car.rotation.y = 90 * Math.PI/180;
+            carPosX += carDirection * 0.1;
+            car.position.set(carPosX, 0.8, 19);
 
+            if (carPosX >= 17 || carPosX <= -17) {
+                carDirection *= -1;
+                
+            }
+        }
 
+        if(sun){
+            sun.rotation.y = rot;
+        }
 
-        time *= 0.0001;
-
-        const speed = 1;
-        const rot = time * speed;
-        mesh.rotation.x = rot;
-        mesh.rotation.y = rot;
 
 		renderer.render( scene, camera );
 
 		requestAnimationFrame( render );
 
 	}
+
+    
 
 }
 
